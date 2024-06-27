@@ -10,6 +10,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
+        // todo
 
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
