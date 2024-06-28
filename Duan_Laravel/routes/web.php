@@ -28,8 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/dashboard/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/dashboard/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::patch('/dashboard/{user}/deactivate', [UserController::class, 'delete'])->name('users.delete');
 
     Route::resource('products', ProductController::class);
+    Route::resource('users', UserController::class);
 });
 
 require __DIR__ . '/auth.php';

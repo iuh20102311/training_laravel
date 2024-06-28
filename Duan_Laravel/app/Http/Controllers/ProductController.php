@@ -10,21 +10,24 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
-        // todo
 
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        if ($request->filled('price')) {
-            $query->where('price', '<=', $request->price);
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+    
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $products = $query->paginate(10);
+        $products = $query->orderByDesc('created_at')->paginate(10);
 
         return view('products.index', compact('products'));
     }

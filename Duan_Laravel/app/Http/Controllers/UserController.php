@@ -2,14 +2,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Session;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::where('is_delete', 0);
 
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -23,7 +22,11 @@ class UserController extends Controller
             $query->where('is_active', $request->is_active);
         }
 
-        $users = $query->paginate(10);
+        if ($request->filled('group_role')) {
+            $query->where('group_role', $request->group_role);
+        }
+
+        $users = $query->orderByDesc('created_at')->paginate(10);
 
         return view('users.index', compact('users'));
     }
@@ -84,9 +87,20 @@ class UserController extends Controller
     // Xóa người dùng
     public function destroy(User $user)
     {
-        $user->delete();
-        return redirect()->route('dashboard')->with('success', 'User deleted successfully.');
+        $user->update(['is_delete' => 1]);
+    return redirect()->route('dashboard')->with('success', 'User marked as deleted successfully.');
     }
 
+    public function delete(User $user)
+    {
+        if ($user->is_active == 1) {
+            $user->update(['is_active' => 0]);
+            $message = 'User deactivated successfully.';
+        } else {
+            $user->update(['is_active' => 1]);
+            $message = 'User reactivated successfully.';
+        }
+        return redirect()->route('dashboard')->with('success', $message);
+    }
 }
 
