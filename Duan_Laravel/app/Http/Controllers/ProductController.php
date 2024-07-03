@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -11,25 +14,35 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
-        if ($request->filled('name')) {
-            $query->where('name', 'like', '%' . $request->name . '%');
+        $filters = [
+            'name' => $request->name,
+            'status' => $request->status,
+            'price' => $request->price,
+            'min_price' => $request->min_price,
+            'max_price' => $request->max_price,
+        ];
+
+        if ($filters['name']) {
+            $query->where('name', 'like', $filters['name'] . '%');
         }
 
-        if ($request->filled('min_price')) {
+        if ($filters['min_price']) {
             $query->where('price', '>=', $request->min_price);
         }
-    
-        if ($request->filled('max_price')) {
+
+        if ($filters['max_price']) {
             $query->where('price', '<=', $request->max_price);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $filters['status']);
         }
 
-        $products = $query->orderByDesc('created_at')->paginate(10);
+        $perPage = $request->input('perPage', 10);
 
-        return view('products.index', compact('products'));
+        $products = $query->orderByDesc('created_at')->paginate($perPage)->appends($filters);
+
+        return view('products.index', compact('products', 'filters'));        
     }
 
     public function create()
@@ -37,18 +50,18 @@ class ProductController extends Controller
         return view('products.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'price' => 'required|numeric',
-            'description' => 'required',
-            'status' => 'required|in:active,inactive',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validatedData = $request->validated();
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $firstChar = strtoupper(substr($validatedData['name'], 0, 1));
+            $randomNum = str_pad(mt_rand(0, 9999999999), 10, '0', STR_PAD_LEFT);
+            $fileName = $firstChar . $randomNum . '.' . $extension;
+    
+            $imagePath = $file->storeAs('products', $fileName, 'public');
             $validatedData['image'] = $imagePath;
         }
 
@@ -62,18 +75,26 @@ class ProductController extends Controller
         return view('products.edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'price' => 'required|numeric',
-            'description' => 'required',
-            'status' => 'required|in:active,inactive',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validatedData = $request->validated();
 
+        $validatedData['status'] = ucfirst(strtolower($validatedData['status']));
+
+        // Thêm ảnh đổi tên lại 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
+            // Xóa hình ảnh cũ nếu có
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $firstChar = strtoupper(substr($validatedData['name'], 0, 1));
+            $randomNum = str_pad(mt_rand(0, 9999999999), 10, '0', STR_PAD_LEFT);
+            $fileName = $firstChar . $randomNum . '.' . $extension;
+    
+            $imagePath = $file->storeAs('products', $fileName, 'public');
             $validatedData['image'] = $imagePath;
         }
 

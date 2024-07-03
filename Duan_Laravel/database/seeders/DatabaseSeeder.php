@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $groupRoles = ['Admin', 'Editor', 'Reviewer'];
 
         // Tạo 20 user
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 60; $i++) {
             User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
@@ -35,14 +35,14 @@ class DatabaseSeeder extends Seeder
 
         $status = ['Đang bán', 'Hết hàng', 'Ngừng bán'];
 
-        for ($i = 0; $i < 20; $i++) {
-            Product::create([
-                'name' => $faker->name,
-                'price'=> $faker->numberBetween($int1 = 10000,$int2= 50000),
-                'description' => $faker->text,
-                'status' => $faker->randomElement($status),
-                'image' => $faker->imageUrl,
-            ]);
-        }
+        // for ($i = 0; $i < 20; $i++) {
+        //     Product::create([
+        //         'name' => $faker->name,
+        //         'price'=> $faker->numberBetween($int1 = 10000,$int2= 50000),
+        //         'description' => $faker->text,
+        //         'status' => $faker->randomElement($status),
+        //         'image' => $faker->imageUrl,
+        //     ]);
+        // }
     }
 }
