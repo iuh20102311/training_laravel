@@ -14,35 +14,41 @@ class DatabaseSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        // Tạo một mảng các group_role có thể có
+        // User seeding (không thay đổi)
         $groupRoles = ['Admin', 'Editor', 'Reviewer'];
-
-        // Tạo 20 user
         for ($i = 0; $i < 60; $i++) {
             User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
-                'password' => Hash::make('password'), // Mật khẩu mặc định là 'password'
+                'password' => Hash::make('password'), 
                 'remember_token' => $faker->md5,
                 'verify_email' => $faker->boolean,
                 'is_active' => $faker->boolean,
-                'is_delete' => false, // Mặc định là false vì đây là user mới
+                'is_delete' => false,
                 'group_role' => $faker->randomElement($groupRoles),
                 'last_login_at' => $faker->dateTimeThisYear()->format('Y-m-d H:i:s'),
                 'last_login_ip' => $faker->ipv4,
             ]);
         }
 
+        // Product seeding (đã điều chỉnh)
         $status = ['Đang bán', 'Hết hàng', 'Ngừng bán'];
+        $letters = range('A', 'Z');
 
-        // for ($i = 0; $i < 20; $i++) {
-        //     Product::create([
-        //         'name' => $faker->name,
-        //         'price'=> $faker->numberBetween($int1 = 10000,$int2= 50000),
-        //         'description' => $faker->text,
-        //         'status' => $faker->randomElement($status),
-        //         'image' => $faker->imageUrl,
-        //     ]);
-        // }
+        for ($i = 0; $i < 70; $i++) {
+            $letterIndex = floor($i / 10);
+            $letter = $letters[$letterIndex];
+            $number = str_pad(($i % 10) + 1, 10, '0', STR_PAD_LEFT);
+            $product_id = $letter . $number;
+
+            Product::create([
+                'product_id' => $product_id,
+                'name' => $faker->name,
+                'price' => $faker->numberBetween(10000, 50000),
+                'description' => $faker->text,
+                'status' => $faker->randomElement($status),
+                'image' => $faker->imageUrl,
+            ]);
+        }
     }
 }

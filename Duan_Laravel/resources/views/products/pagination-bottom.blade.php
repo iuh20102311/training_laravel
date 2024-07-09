@@ -23,7 +23,7 @@
                     {{-- Các số trang --}}
                     @php
                         $start = max($products->currentPage() - 2, 1);
-                        $end = min($start + 2, $products->lastPage());
+                        $end = min($start + 3, $products->lastPage());
                         $start = max($end - 4, 1);
                     @endphp
 

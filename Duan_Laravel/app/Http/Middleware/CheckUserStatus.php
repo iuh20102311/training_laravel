@@ -12,15 +12,18 @@ class CheckUserStatus
     {
         if (Auth::check()) {
             $user = Auth::user();
+            
             if ($user->is_delete == 1) {
                 Auth::logout();
-                return redirect()->route('login')->with('error', 'Tài khoản hiện đang bị xóa. Liên hệ admin để làm rõ.');
+                return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị xóa. Liên hệ admin để làm rõ.');
             }
+
             if ($user->is_active == 0) {
                 Auth::logout();
-                return redirect()->route('login')->with('error', 'Tài khoản đang bị khóa.');
+                return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị khóa.');
             }
         }
+
         return $next($request);
     }
 }

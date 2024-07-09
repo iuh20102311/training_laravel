@@ -23,10 +23,10 @@ class ProductRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/|min:0',
             'description' => 'required',
             'status' => 'required|in:Đang bán,Ngừng bán,Hết hàng',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' =>  'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=1024'        
         ];
     }
 
@@ -35,11 +35,15 @@ class ProductRequest extends FormRequest
         return [
             'name.required' => 'Tên sản phẩm là bắt buộc.',
             'name.max' => 'Tên sản phẩm không được vượt quá 255 ký tự.',
-            'price.required' => 'Giá sản phẩm là bắt buộc.',
-            'price.numeric' => 'Giá sản phẩm phải là số.',
+            'price.required' => 'Giá bán không được để trống.',
+            'price.numeric' => 'Giá bán chỉ được nhập số.',
+            'price.regex' => 'Giá bán chỉ được nhập số và không được là số âm.',
+            'price.min' => 'Giá bán không được nhỏ hơn 0.',
             'description.required' => 'Mô tả là bắt buộc.',
-            'image.image' => 'Bắt buộc phải là ảnh.',
-            'image.mimes' => 'Chỉ nhận định dạng là mimes:jpeg,png,jpg,gif.',
+            'image.image' => 'Tệp tải lên phải là hình ảnh.',
+            'image.mimes' => 'Hình ảnh chỉ được có định dạng jpg, jpeg, png.',
+            'image.max' => 'Dung lượng hình không được vượt quá 2Mb.',
+            'image.dimensions' => 'Kích thước hình không được vượt quá 1024px.',
         ];
     }
 }

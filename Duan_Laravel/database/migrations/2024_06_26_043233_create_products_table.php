@@ -16,7 +16,7 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('price', 10, 2); // decimal('tên cột', tổng số chữ số, số chữ số sau dấu phẩy)
+            $table->decimal('price', 10, 2); 
             $table->text('description')->nullable();
             $table->enum('status', ['Đang bán', 'Hết hàng', 'Ngừng bán'])->default('Đang bán');
             $table->string('image')->nullable();

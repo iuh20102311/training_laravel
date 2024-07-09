@@ -4,13 +4,14 @@
             <div class="sm:ml-auto text-sm text-gray-700">
                 <form action="{{ route('users.index') }}" method="GET" class="form-inline mb-3">
                     <label for="perPage" class="mr-2">Hiển thị:</label>
-                    <select name="perPage" id="perPage" class="form-control mr-2" onchange="this.form.submit()">
+                    <select name="perPage" id="perPage" class="form-control mr-2">
                         <option value="10" {{ Request::get('perPage') == '10' ? 'selected' : '' }}>10</option>
                         <option value="20" {{ Request::get('perPage') == '20' ? 'selected' : '' }}>20</option>
                     </select>
                     <label for="person" class="mr-2">đơn vị</label>
                 </form>
             </div>
+            
             <div class="sm:mr-auto">
                 <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                     {{-- Link của trang đầu --}}
@@ -33,8 +34,8 @@
                     {{-- Các số trang --}}
                     @php
                         $start = max($users->currentPage() - 2, 1);
-                        $end = min($start + 4, $users->lastPage());
-                        $start = max(min($end - 4, $users->lastPage() - 4), 1);
+                        $end = min($start + 3, $users->lastPage());
+                        $start = max($end - 4, 1);
                     @endphp
 
                     @if ($start > 1)

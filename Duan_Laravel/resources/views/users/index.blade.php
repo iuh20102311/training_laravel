@@ -10,108 +10,158 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="mb-4 relative">
-                        {{-- Thanh tìm kiếm, xóa tìm kiếm, thêm người dùng mới--}}
                         @include('users.search-form')
                     </div>
 
-                    {{-- Thanh chuyển trang bên trên--}}
-                    @include('users.pagination-top')
-                    {{--- Modal thêm người người dùng --}}
-                    @if(request()->has('showModal'))
-                        @include('users.create-modal')
-                    @endif
-
-                
-                    <div class="overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative">
-                        @if($users->isEmpty())
-                            <div class="text-center py-4 text-gray-500">
-                                Không có dữ liệu
-                            </div>
-                        @else
-                        <table class="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative">
-                            <thead>
-                                <tr class="text-left">
-                                    <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">
-                                        #
-                                    </th>
-                                    <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">
-                                        Họ tên
-                                    </th>
-                                    <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">
-                                        Email
-                                    </th>
-                                    <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">
-                                        Nhóm
-                                    </th>
-                                    <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">
-                                        Trạng Thái
-                                    </th>
-                                    <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">
-                                        Thao tác
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @foreach($users as $user)
-                                    @if($user->is_delete == 0)
-                                        <tr class="hover:bg-gray-100 {{ $loop->even ? 'bg-red-50' : 'bg-white' }}">
-                                            <td class="border-dashed border-t border-red-200 px-6 py-4 text-center">
-                                                {{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}
-                                            </td>
-                                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                                                {{ $user->name }}
-                                            </td>
-                                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                                                {{ $user->email }}
-                                            </td>
-                                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                                                {{ $user->group_role }}
-                                            </td>
-                                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                                                @if($user->is_active == 1)
-                                                    <span class="bg-green-200 text-green-600 py-1 px-3 rounded-full text-xs">Đang hoạt động</span>
-                                                @else
-                                                    <span class="bg-red-200 text-red-600 py-1 px-3 rounded-full text-xs">Tạm khóa</span>
-                                                @endif
-                                            </td>
-                                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                                                <div class="flex justify-center space-x-2">
-                                                    <a href="{{ route('users.edit', $user) }}" class="text-blue-500 hover:text-blue-700">
-                                                        <i class="fas fa-pen"></i>
-                                                    </a>
-
-                                                    <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-red-500 hover:text-red-700" onclick='return confirm("Bạn có chắc chắn muốn xóa người dùng \"{{ $user->name }}\" này?")'>
-                                                            <i class="fas fa-trash-alt px-2"></i>
-                                                        </button>
-                                                    </form>
-                                                    
-                                                    <form action="{{ route('users.active', $user) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <button type="submit" 
-                                                            class="{{ $user->is_active ? 'text-yellow-500 hover:text-yellow-700' : 'text-green-500 hover:text-green-700' }}" 
-                                                            onclick="return confirm('{{ $user->is_active ? 'Bạn có chắc chắn muốn tạm khóa người dùng \"' . addslashes($user->name) . '\" này?' : 'Bạn có chắc chắn muốn mở khóa người dùng \"' . addslashes($user->name) . '\" này?' }}')">
-                                                            <i class="{{ $user->is_active ? 'fas fa-user-times' : 'fas fa-user-check' }}"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            </tbody>
-                        </table>
-                        @endif
+                    <div id="users-list">
+                        @include('users.pagination-top')
+                        @include('users.table')
+                        @include('users.pagination-bottom')
                     </div>
-
-                    {{-- Thanh chuyển trang bên dưới--}}
-                    @include('users.pagination-bottom')
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    $(document).ready(function () {
+        var urlParams = new URLSearchParams(window.location.search);
+
+        function updateUserList(url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    $('#users-list').html($(response).find('#users-list').html());
+                },
+                error: function (xhr) {
+                    console.error('Error:', xhr);
+                }
+            });
+        }
+
+        $('#clear-button').click(function (e) {
+            e.preventDefault();
+            urlParams.delete('name');
+            urlParams.delete('email');
+            urlParams.delete('group_role');
+            urlParams.delete('is_active');
+            urlParams.set('clear', true);
+
+            var url = '{{ route('users.index') }}?' + urlParams.toString();
+            $('#search-form input, #search-form select').val('');
+            updateUserList(url);
+        });
+
+        $('#perPage').change(function () {
+            urlParams.set('perPage', this.value);
+            urlParams.delete('clear');
+
+            var url = '{{ route('users.index') }}?' + urlParams.toString();
+            updateUserList(url);
+        });
+
+        $(document).on('click', '.delete-user', function (e) {
+            e.preventDefault();
+            var userId = $(this).data('id');
+            var userName = $(this).data('name');
+
+            Swal.fire({
+                title: 'Nhắc nhở',
+                text: `Bạn có muốn xóa thành viên ${userName} không?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{ url("users") }}/' + userId,
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+                            $('#user-row-' + userId).remove();
+                            Swal.fire('Đã xóa!', 'Người dùng đã được xóa thành công.', 'success');
+
+                            $('#total-count').text(response.total);
+
+                            // Gửi lại yêu cầu AJAX với tham số tìm kiếm để cập nhật danh sách
+                            $.ajax({
+                                url: '{{ route('users.index') }}',
+                                type: 'GET',
+                                data: $('#search-form').serialize(), // Dữ liệu tìm kiếm
+                                success: function (response) {
+                                    $('#users-list').html($(response).find('#users-list').html()); // Cập nhật danh sách
+                                    $('#total-count').text(response.total);
+                                },
+                                error: function (xhr) {
+                                    console.log('Error:', xhr);
+                                }
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '.toggle-active', function (e) {
+            e.preventDefault();
+            var $button = $(this);
+            var userId = $button.data('id');
+            var userName = $button.data('name');
+            var isActive = $button.data('active');
+            var action = isActive == 1 ? 'tạm khóa' : 'mở khóa';
+            var $form = $button.closest('form');
+
+            Swal.fire({
+                title: 'Nhắc nhở',
+                text: `Bạn có chắc chắn muốn ${action} người dùng "${userName}" này?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: $form.attr('action'),
+                        type: 'POST',
+                        data: $form.serialize(),
+                        success: function (response) {
+                            var $icon = $button.find('i');
+                            var $statusSpan = $(`#user-row-${userId} .status-span`);
+                            if (response.is_active) {
+                                $button.removeClass('text-green-500 hover:text-green-700').addClass('text-yellow-500 hover:text-yellow-700');
+                                $icon.removeClass('fa-user-check').addClass('fa-user-times');
+                                $statusSpan.removeClass('bg-red-200 text-red-600').addClass('bg-green-200 text-green-600').text('Đang hoạt động');
+                                $button.data('active', 1);
+                            } else {
+                                $button.removeClass('text-yellow-500 hover:text-yellow-700').addClass('text-green-500 hover:text-green-700');
+                                $icon.removeClass('fa-user-times').addClass('fa-user-check');
+                                $statusSpan.removeClass('bg-green-200 text-green-600').addClass('bg-red-200 text-red-600').text('Tạm khóa');
+                                $button.data('active', 0);
+                            }
+                            Swal.fire('Thành công!', response.message, 'success');
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+</script>

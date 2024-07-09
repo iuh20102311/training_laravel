@@ -26,12 +26,12 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
-    
+
     public function rules()
     {
         return [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:8',
         ];
     }
 
@@ -41,6 +41,7 @@ class LoginRequest extends FormRequest
             'email.required' => 'Vui lòng nhập địa chỉ email của bạn.',
             'email.email' => 'Địa chỉ email không hợp lệ.',
             'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Vui lòng nhập mật khẩu ít nhất có 8 ký tự.',
         ];
     }
 
@@ -57,25 +58,23 @@ class LoginRequest extends FormRequest
 
         $user = User::where('email', $this->email)->first();
 
+        $errors = [];
+
         if (!$user) {
-            RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'email' => 'Địa chỉ email không tồn tại.',
-            ]);
+            $errors['email'] = 'Địa chỉ email không tồn tại.';
+        } elseif (!Hash::check($this->password, $user->password)) {
+            $errors['password'] = 'Mật khẩu không chính xác.';
         }
 
-        if (!Hash::check($this->password, $user->password)) {
+        if (!empty($errors)) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'password' => 'Mật khẩu không chính xác.',
-            ]);
+            throw ValidationException::withMessages($errors);
         }
 
         if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'email' => 'Địa chỉ email không tồn tại.',
-                'password' => 'Mật khẩu không chính xác.',
+                'email' => 'Thông tin đăng nhập không chính xác.',
             ]);
         }
 
@@ -89,7 +88,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -110,6 +109,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -7,16 +5,20 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="flex space-x-4 mt-4">
+                    @if(Auth::user()->group_role === 'Admin')
                     <a href="{{ route('users.index') }}" 
                         class="px-4 py-2 rounded-md transition duration-300 
                             {{ request()->is('users*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                         Users
                     </a>
+                    @endif
+                    @if(in_array(Auth::user()->group_role, ['Admin', 'Editor', 'Reviewer']))
                     <a href="{{ route('products.index') }}" 
                         class="px-4 py-2 rounded-md transition duration-300 
                             {{ request()->is('products*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                         Sản phẩm
                     </a>
+                    @endif
                 </div>
             </div>
 

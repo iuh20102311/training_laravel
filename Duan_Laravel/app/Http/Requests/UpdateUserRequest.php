@@ -2,17 +2,15 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
-
 class UpdateUserRequest extends UserRequest
 {
     public function rules()
     {
         $rules = parent::rules();
-        $rules['email'] .= '|unique:users,email,' . $this->user->id;
-        $rules['group_role'] = 'required|in:Editor,Reviewer';
-        $rules['is_active'] = 'required|boolean';
-        
+        $rules['email'] = 'required|string|email|max:255';
+        $rules['password'] = 'required|string|min:8|confirmed';
+        $rules['group_role'] = 'required|string|in:Admin,Editor,Reviewer';
+
         return $rules;
     }
 
@@ -20,11 +18,10 @@ class UpdateUserRequest extends UserRequest
     {
         $messages = parent::messages();
         $messages['email.unique'] = 'Địa chỉ email đã được sử dụng.';
-        $messages['group_role.required'] = 'Vai trò người dùng là bắt buộc.';
-        $messages['group_role.in'] = 'Vai trò người dùng không hợp lệ.';
-        $messages['is_active.required'] = 'Trạng thái hoạt động là bắt buộc.';
-        $messages['is_active.boolean'] = 'Trạng thái hoạt động không hợp lệ.';
-        
+        $messages['password.required'] = 'Mật khẩu là bắt buộc.';
+        $messages['password.min'] = 'Mật khẩu phải có ít nhất 8 ký tự.';
+        $messages['password.confirmed'] = 'Mật khẩu xác nhận không khớp.';
+
         return $messages;
     }
 }

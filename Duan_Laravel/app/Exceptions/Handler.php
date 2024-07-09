@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -18,13 +19,10 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     */
-    // public function register(): void
-    // {
-    //     $this->reportable(function (Throwable $e) {
-    //         //
-    //     }); 
-    // }
+    public function register()
+{
+    $this->renderable(function (ValidationException $e, $request) {
+        return back()->withErrors($e->errors())->withInput();
+    });
+}
 }

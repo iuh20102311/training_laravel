@@ -2,14 +2,12 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
 class StoreProductRequest extends ProductRequest
 {
     public function rules()
     {
         $rules = parent::rules();
-        // $rules['email'] .= '|unique:users,email,' . $this->user->id;
+        $rules['name'] = 'required|string|min:5'; 
         
         return $rules;
     }
@@ -17,7 +15,7 @@ class StoreProductRequest extends ProductRequest
     public function messages()
     {
         $messages = parent::messages();
-        // $messages['email.unique'] = 'Địa chỉ email đã được sử dụng.';
+        $messages['name.min'] = 'Tên sản phẩm phải có ít nhất 5 ký tự.';
         
         return $messages;
     }

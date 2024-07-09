@@ -21,27 +21,33 @@ class UserController extends Controller
         ];
 
         if ($filters['name']) {
-            $query->where('name', 'like', $filters['name'] . '%');
+            $query->where('name', 'like', '%' . $filters['name'] . '%');
         }
 
         if ($filters['email']) {
-            $query->where('email', 'like', $filters['email'] . '%');
+            $query->where('email', 'like', '%' . $filters['email'] . '%');
         }
 
-        if ($filters['is_active']) {
+        if ($filters['is_active'] !== null) {
             $query->where('is_active', $filters['is_active']);
         }
 
-        if ($request->filled('group_role')) {
+        if ($filters['group_role']) {
             $query->where('group_role', $filters['group_role']);
         }
 
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('perPage') ?? 10;
 
         $users = $query->orderByDesc('created_at')->paginate($perPage)->appends($filters);
 
+        if ($request->ajax()) {
+            return view('users.index', compact('users', 'filters'))
+                ->fragment('users-list');
+        }
+
         return view('users.index', compact('users', 'filters'));
     }
+
 
     public function create()
     {
@@ -82,12 +88,24 @@ class UserController extends Controller
         $user->update(['is_delete' => 1]);
         if (auth()->id() == $user->id) {
             auth()->logout();
-            return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị xóa. Liên hệ admin để làm rõ.');
+            return response()->json(['message' => 'Tài khoản của bạn đã bị xóa. Liên hệ admin để làm rõ.'], 200);
         }
-        return redirect()->route('users.index')->with('success', 'Người dùng đã được đánh dấu là đã xóa.');
+
+        if (request()->ajax()) {
+            // Chỉ lấy người dùng chưa bị xóa
+            $users = User::where('is_delete', 0)->paginate(10);
+    
+            // Return JSON response with updated counts
+            return response()->json([
+                'message' => 'Người dùng đã được xóa thành công.',
+                'total' => $users->total() // Tổng số người dùng chưa bị xóa
+            ], 200);
+        }
+
+        return response()->json(['message' => 'Người dùng đã được đánh dấu là đã xóa.'], 200);
     }
 
-    public function update_is_active(User $user)
+    public function updateIsActive(User $user)
     {
         if ($user->is_active == 1) {
             $user->update(['is_active' => 0]);
@@ -99,10 +117,9 @@ class UserController extends Controller
 
         if (auth()->id() == $user->id && $user->is_active == 0) {
             auth()->logout();
-            return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị khóa.');
+            return response()->json(['message' => 'Tài khoản của bạn đã bị khóa.'], 200);
         }
 
-        return redirect()->route('users.index')->with('success', $message);
+        return response()->json(['message' => $message, 'is_active' => $user->is_active], 200);
     }
 }
-

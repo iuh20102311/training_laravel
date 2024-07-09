@@ -4,7 +4,7 @@
             <div class="p-6 border-b border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-800">Thông tin sản phẩm</h2>
             </div>
-            <form method="POST" action="{{ route('products.update', $product->id) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('products.update', $product->product_id ) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="p-6">
@@ -20,7 +20,7 @@
                                     id="product-name" name="name" type="text" placeholder="Nhập tên sản phẩm"
                                     value="{{ old('name', $product->name) }}">
                                 @error('name')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
                             </div>
                             <div class="mb-6">
@@ -29,10 +29,10 @@
                                 </label>
                                 <input
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('price') border-red-500 @enderror"
-                                    id="price" name="price" type="text" placeholder="Nhập giá bán"
+                                    id="price" name="price" type="text" placeholder="Nhập giá bán" min="0" step="any"
                                     value="{{ old('price', $product->price) }}">
                                 @error('price')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
                             </div>
                             <div class="mb-6">
@@ -48,7 +48,7 @@
                                     <option value="Hết hàng" {{ old('status', $product->status) == 'Hết hàng' ? 'selected' : '' }}>Hết hàng</option>
                                 </select>
                                 @error('status')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
                             </div>
                             <div class="mb-6">
@@ -60,7 +60,7 @@
                                     id="description" name="description" rows="4"
                                     placeholder="Mô tả sản phẩm">{{ old('description', $product->description) }}</textarea>
                                 @error('description')
-                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -68,36 +68,39 @@
                         <div class="w-full md:w-1/2 px-3">
                             <div class="space-y-4">
                                 <div class="text-left font-bold mb-2">Hình ảnh</div>
-                                <div id="imageContainer"
-                                    class="mt-6 rounded-lg p-4 flex justify-center items-center"
+                                <div id="imageContainer" class="mt-6 rounded-lg p-4 flex justify-center items-center"
                                     style="height: 200px;">
                                     @if($product->image)
                                         <img id="preview" src="{{ asset('storage/' . $product->image) }}"
                                             alt="{{ $product->name }}" class="max-w-full max-h-full object-contain">
                                     @else
                                         <svg id="defaultImage" class="h-32 w-32 text-gray-400" stroke="currentColor"
-                                            fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                            fill="none" viewBox="0 0 48 48" aria-hidden="true"
+                                            style="height: 150px;width: 150px;">
                                             <path
                                                 d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                     @endif
                                 </div>
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2 mt-4" style="margin-left: 200px;">
                                     <input type="file" name="image" id="image" class="hidden" accept="image/*">
                                     <button type="button" id="uploadButton"
-                                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                                        style="background-color:green;margin-right: 10px;"
+                                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
                                         Upload
                                     </button>
-                                    <button type="button" id="deleteButton"
+                                    <button type="button" id="deleteButton" style="margin-right: 20px;"
                                         class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-                                        Xóa file
+                                        Xóa ảnh
                                     </button>
+                                    {{--Xóa ảnh đi luôn--}}
+                                    <input type="hidden" name="delete_image" id="delete_image" value="0">
                                     <span id="fileName"
                                         class="text-sm text-gray-600 flex-grow">{{ $product->image ? basename($product->image) : '' }}</span>
                                 </div>
                                 @error('image')
-                                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -105,19 +108,21 @@
                 </div>
                 <div class="px-6 py-6 border-t border-gray-200 flex items-center mb-6 justify-end space-x-6">
                     <a href="{{ route('products.index') }}"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline">
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+                        style="margin-right:10px">
                         Hủy
                     </a>
                     <button
                         class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
-                        type="submit">
+                        type="submit" style="background-color:green;">
                         Lưu
                     </button>
                 </div>
             </form>
         </div>
 
-        <form id="deleteImageForm" action="{{ route('products.update', $product) }}" method="POST" style="display:none;">
+        <form id="deleteImageForm" action="{{ route('products.update', $product) }}" method="POST"
+            style="display:none;">
             @csrf
             @method('PUT')
             <input type="hidden" name="delete_image" value="1">
@@ -134,6 +139,16 @@
             const preview = document.getElementById('preview') || new Image();
             const nameInput = document.getElementById('product-name');
             const fileNameSpan = document.getElementById('fileName');
+            let deleteImageInput = document.getElementById('delete_image');
+
+            // Tạo input hidden delete_image nếu chưa tồn tại
+            if (!deleteImageInput) {
+                deleteImageInput = document.createElement('input');
+                deleteImageInput.type = 'hidden';
+                deleteImageInput.name = 'delete_image';
+                deleteImageInput.id = 'delete_image';
+                document.querySelector('form').appendChild(deleteImageInput);
+            }
 
             if (!preview.id) {
                 preview.id = 'preview';
@@ -175,16 +190,25 @@
 
                     // Gán files mới cho input
                     imageInput.files = dataTransfer.files;
+
+                    // Reset giá trị của delete_image
+                    deleteImageInput.value = '0';
                 }
             });
 
             deleteButton.addEventListener('click', function () {
+                // Xóa ảnh preview và hiển thị ảnh mặc định
                 imageInput.value = '';
-                preview.src = '#';
+                preview.src = '';
                 preview.style.display = 'none';
-                if (defaultImage) defaultImage.style.display = 'block';
+                if (defaultImage) {
+                    defaultImage.style.display = 'block';
+                }
                 fileNameSpan.textContent = '';
+
+                // Đánh dấu việc xóa ảnh bằng cách đặt giá trị của input ẩn delete_image thành 1
+                deleteImageInput.value = '1';
             });
-        });
+        }); 
     </script>
 </x-app-layout>

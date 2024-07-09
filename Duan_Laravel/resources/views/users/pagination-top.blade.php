@@ -93,7 +93,7 @@
             ~
             <span class="font-medium"><b>{{ $users->lastItem() }}</b></span>
             trong tổng số
-            <span class="font-medium"><b>{{ $users->total() }}</b></span>
+            <span class="font-medium"><b id="total-count">{{ $users->total() }}</b></span>
             user
         </div>
     </div>
