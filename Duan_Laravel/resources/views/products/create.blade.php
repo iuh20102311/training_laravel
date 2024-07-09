@@ -72,8 +72,7 @@
                                     Hình ảnh
                                 </label>
 
-                                <div
-                                    class="mt-6 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                                <div class="mt-6 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                                     <div class="space-y-4">
                                         <div id="imageContainer" class="rounded-lg p-4 flex justify-center items-center"
                                             style="height: 200px;">
@@ -84,24 +83,22 @@
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                             <img id="preview" src="#" alt="Preview"
-                                                class="max-w-full max-h-full object-contain" style="display: none;">
+                                                class="max-w-full max-h-full object-contain" hidden>
                                         </div>
                                         <div class="flex items-center space-x-2 mt-6">
                                             <input type="file" name="image" id="image" class="hidden" accept="image/*">
                                             <button type="button" id="uploadButton"
-                                                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-                                                style="background-color:green; margin-right: 10px;">
+                                                class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
                                                 Upload
                                             </button>
                                             <button type="button" id="deleteButton"
-                                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                                                style="margin-right: 10px;">
+                                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
                                                 Xóa file
                                             </button>
                                             <span id="fileName" class="text-sm text-gray-600 flex-grow"></span>
                                         </div>
                                         @error('image')
-                                            <p class="text-red-500 text-xs italic" style="color:red">{{ $message }}</p>
+                                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
                                         @enderror
                                     </div>
                                 </div>
@@ -111,13 +108,12 @@
                 </div>
                 <div class="px-6 py-6 border-t border-gray-200 flex items-center mb-6 justify-end space-x-6">
                     <a href="{{ route('products.index') }}"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
-                        style="margin-right:10px">
+                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline">
                         Hủy
                     </a>
                     <button
                         class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
-                        type="submit" style="background-color:green">
+                        type="submit">
                         Lưu
                     </button>
                 </div>

@@ -1,5 +1,5 @@
 @if ($products->hasPages())
-    <div class="w-full flex flex-col sm:flex-row items-center sm:justify-between">
+    <div class="w-full flex flex-col sm:flex-row items-center sm:justify-between my-6">
         <div class="hidden sm:block sm:w-1/4"></div> <!-- Ẩn trên mobile -->
         <div class="w-full sm:w-1/2 flex justify-center sm:mb-0">
             <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
@@ -124,6 +124,5 @@
             <span class="font-medium"><b id="total-count">{{ $products->total() }}</b></span>
             user
         </div>
-
     </div>
 @endif

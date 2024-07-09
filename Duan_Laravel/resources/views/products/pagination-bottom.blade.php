@@ -2,7 +2,7 @@
     <div class="flex items-center justify-center bg-white mt-6 px-4 py-3 sm:px-6 relative">
         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-center">
             <div class="sm:mr-auto">
-                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <nav class="isolate inline-flex -space-x-px justify-center rounded-md shadow-sm" aria-label="Pagination">
                     {{-- Link của trang đầu --}}
                     @if ($products->onFirstPage())
                         <span class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">

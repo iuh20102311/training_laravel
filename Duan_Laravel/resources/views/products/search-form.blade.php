@@ -1,49 +1,38 @@
-<form id="search-form" action="{{ route('products.index') }}" method="GET" class="form">
-    {{-- Hàng 1: Các input để lọc dữ liệu --}}
-    <div class="flex items-center space-x-6 justify-between">
-        {{-- Input lọc theo tên sản phẩm --}}
-        <label for="name" class="flex-1 mx-6">Tên sản phẩm
-            <input type="text" name="name" placeholder="Nhập tên sản phẩm" value="{{ request('name') }}"
-                class="w-full border rounded px-4 py-2 pr-4">
-        </label>
-        {{-- Input lọc theo trạng thái --}}
-        <label for="status" class="flex-1 mx-6">Trạng thái
-            <select name="status" class="w-full border rounded py-2">
+<form id="search-form" action="{{ route('products.index') }}" method="GET" class="bg-white p-6 rounded-lg shadow-md">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div>
+            <label for="name" class="block text-gray-700 font-bold mb-2">Tên sản phẩm</label>
+            <input type="text" name="name" placeholder="Nhập tên sản phẩm" value="{{ request('name') }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="status" class="block text-gray-700 font-bold mb-2">Trạng thái</label>
+            <select name="status" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Chọn tình trạng</option>
                 <option value="Đang bán" {{ request('status') == 'Đang bán' ? 'selected' : '' }}>Đang bán</option>
                 <option value="Hết hàng" {{ request('status') == 'Hết hàng' ? 'selected' : '' }}>Hết hàng</option>
                 <option value="Ngừng bán" {{ request('status') == 'Ngừng bán' ? 'selected' : '' }}>Ngừng bán</option>
             </select>
-        </label>
-        {{-- Input lọc theo giá bán từ đến --}}
-        <label for="min_price" class="flex-1 mx-6">Giá bán từ
-            <input type="number" name="min_price" value="{{ request('min_price') }}" class="w-full border rounded py-2" min="0">
-        </label>
-    
-        <span class="nig">~</span>
-
-        <label for="max_price" class="flex-1 mx-6">Giá bán đến
-            <input type="number" name="max_price" value="{{ request('max_price') }}" class="w-full border rounded py-2" min="0">
-        </label>
+        </div>
+        <div>
+            <label for="min_price" class="block text-gray-700 font-bold mb-2">Giá bán từ</label>
+            <input type="number" name="min_price" value="{{ request('min_price') }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" min="0">
+        </div>
+        <div>
+            <label for="max_price" class="block text-gray-700 font-bold mb-2">Giá bán đến</label>
+            <input type="number" name="max_price" value="{{ request('max_price') }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" min="0">
+        </div>
     </div>
 
-    {{-- Hàng 2: Nút Thêm mới, Tìm kiếm và Xóa lọc --}}
-    <div class="flex items-center justify-between bg-white mt-6 px-4 py-3 sm:px-6">
-        {{-- Nút Thêm mới --}}
-        <a href="{{ route('products.create') }}"
-            class="text-white px-4 py-2 rounded-md transition duration-300 inline-block" style=" background-color:#28a745;">
-            <i class="fa fa-user-plus"></i> Thêm mới
+    <div class="flex justify-between mt-4">
+        <a href="{{ route('products.create') }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+            <i class="fa fa-user-plus mr-2"></i> Thêm mới
         </a>
-
-        {{-- Nút Tìm kiếm và Xóa lọc --}}
         <div>
-            <button type="submit" style="background-color: #60a5fa;" class="text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 inline-flex items-center">
-                <i class="fa fa-magnifying-glass" style="margin-right: 10px;"></i> Tìm kiếm
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                <i class="fa fa-magnifying-glass mr-2"></i> Tìm kiếm
             </button>
-
-            <button type="button" id="clear-button"
-                class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 inline-flex items-center">
-                <i class="fa-regular fa-rectangle-xmark" style="margin-right: 10px;"></i> Xóa lọc
+            <button type="button" id="clear-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded ml-2 inline-flex items-center">
+                <i class="fa-regular fa-rectangle-xmark mr-2"></i> Xóa lọc
             </button>
         </div>
     </div>
