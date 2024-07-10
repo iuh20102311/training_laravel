@@ -1,47 +1,83 @@
 <x-guest-layout>
-    <!-- Session Status -->
+    <!-- Popup -->
+    <div id="errorPopup" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Thông báo</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="popup-body">
+                <i class="fas fa-exclamation-circle"></i>
+                <p id="errorMessage"></p>
+            </div>
+        </div>
+    </div>
+
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}">
+
+    <form method="POST" action="{{ route('login') }}" class="login-form">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus
+                autocomplete="username" placeholder="Email" />
         </div>
+        <x-input-error :messages="$errors->get('email')" class="mt-2" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <x-text-input id="password" type="password" name="password" required autocomplete="current-password"
+                placeholder="Mật khẩu" />
         </div>
+        <x-input-error :messages="$errors->get('password')" class="mt-2" />
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
+        <div class="remember-me">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" name="remember">
+                <span class="ms-2 text-sm">Remember me</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <!-- @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif -->
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
+        <div class="submit-button">
+            <x-primary-button>
+                {{ __('Đăng nhập') }}
             </x-primary-button>
         </div>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var error = "{{ session('error') }}";
+            if (error) {
+                showPopup(error);
+            }
+
+            function showPopup(message) {
+                var popup = document.getElementById('errorPopup');
+                var errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                popup.classList.add('show');
+
+                var closeBtn = document.getElementsByClassName('close')[0];
+                closeBtn.onclick = function () {
+                    popup.classList.remove('show');
+                }
+
+                window.onclick = function (event) {
+                    if (event.target == popup) {
+                        popup.classList.remove('show');
+                    }
+                }
+
+                // Tự động đóng popup sau 5 giây
+                setTimeout(function () {
+                    popup.classList.remove('show');
+                }, 5000);
+            }
+        });
+    </script>
 </x-guest-layout>
+
+

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Session;
 
 class Product extends Authenticatable
 {
@@ -21,13 +20,16 @@ class Product extends Authenticatable
 
     use HasFactory;
     protected $table = 'products';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'product_id';
+    public $incrementing = false; // Vì product_id không phải là số tự tăng
+    protected $keyType = 'string'; // Vì product_id là chuỗi
+
     protected $fillable = [
+        'product_id',
         'name',
         'price',
         'description',
         'status',
         'image',
     ];
-    
 }
