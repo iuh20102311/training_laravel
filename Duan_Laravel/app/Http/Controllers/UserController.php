@@ -5,7 +5,9 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Imports\UsersImport;
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -94,7 +96,7 @@ class UserController extends Controller
         if (request()->ajax()) {
             // Chỉ lấy người dùng chưa bị xóa
             $users = User::where('is_delete', 0)->paginate(10);
-    
+
             // Return JSON response with updated counts
             return response()->json([
                 'message' => 'Người dùng đã được xóa thành công.',
@@ -121,5 +123,21 @@ class UserController extends Controller
         }
 
         return response()->json(['message' => $message, 'is_active' => $user->is_active], 200);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt',
+        ]);
+
+        Excel::import(new UsersImport, $request->file('file'));
+
+        return back()->with('success', 'CSV file imported successfully.');
+    }
+
+    public function export()
+    {
+        return Excel::download(new UsersExport, 'users.csv');
     }
 }
