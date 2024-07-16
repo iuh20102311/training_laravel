@@ -32,4 +32,9 @@ class Product extends Authenticatable
         'status',
         'image',
     ];
+
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'product_id');
+    }
 }
