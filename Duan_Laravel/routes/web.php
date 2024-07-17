@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
@@ -22,6 +23,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:Admin'])->group(function () {
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/active', [UserController::class, 'updateIsActive'])->name('users.active');
+
+        Route::resource('orders', OrderController::class);
+        Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     });
 
     Route::middleware(['role:Admin,Editor'])->group(function () {

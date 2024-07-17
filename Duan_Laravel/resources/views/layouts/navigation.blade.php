@@ -16,7 +16,14 @@
                     <a href="{{ route('products.index') }}" 
                         class="px-4 py-2 rounded-md transition duration-300 
                             {{ request()->is('products*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                        Sản phẩm
+                        Products
+                    </a>
+                    @endif
+                    @if(in_array(Auth::user()->group_role, ['Admin']))
+                    <a href="{{ route('orders.index') }}" 
+                        class="px-4 py-2 rounded-md transition duration-300 
+                            {{ request()->is('orders*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                        Orders
                     </a>
                     @endif
                 </div>
