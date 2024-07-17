@@ -40,4 +40,19 @@ class Order extends Model
     {
         return $this->hasMany(ShippingAddress::class, 'order_id');
     }
+
+    public function getPaymentMethodDetails()
+    {
+        if ($this->payment_method == 1) {
+            return [
+                'label' => 'COD',
+                'classes' => 'status-span bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs whitespace-nowrap'
+            ];
+        } else {
+            return [
+                'label' => 'Paypal',
+                'classes' => 'status-span bg-red-200 text-red-800 py-1 px-3 rounded-full text-xs whitespace-nowrap'
+            ];
+        }
+    }
 }

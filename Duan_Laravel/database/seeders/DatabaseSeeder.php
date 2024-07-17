@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         $faker = Faker::create();
 
         // User seeding
-        $groupRoles = ['Admin', 'Editor', 'Reviewer', 'User'];
+        $groupRoles = ['Admin', 'Editor', 'Reviewer'];
         for ($i = 0; $i < 60; $i++) {
             User::create([
                 'name' => $faker->name,
