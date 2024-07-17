@@ -54,15 +54,15 @@
                             <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
                                 @if($order->order_status == 0)
                                     <span
-                                        class="order-status-span bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-xs whitespace-nowrap">Đang
+                                        class="order-status-span font-bold bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-xs whitespace-nowrap">Đang
                                         xử lý</span>
                                 @elseif($order->order_status == 1)
                                     <span
-                                        class="order-status-span bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs whitespace-nowrap">Đã
+                                        class="order-status-span font-bold bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs whitespace-nowrap">Đã
                                         xác nhận</span>
                                 @elseif($order->order_status == 2)
                                     <span
-                                        class="order-status-span bg-red-200 text-red-800 py-1 px-3 rounded-full text-xs whitespace-nowrap">Đã
+                                        class="order-status-span font-bold bg-red-200 text-red-800 py-1 px-3 rounded-full text-xs whitespace-nowrap">Đã
                                         hủy</span>
                                 @endif
                             </td>
@@ -77,7 +77,7 @@
                                     $paymentDetails = $order->getPaymentMethodDetails();
                                 @endphp
                                 <span
-                                    class="payment-method-span {{ $paymentDetails['classes'] }}">{{ $paymentDetails['label'] }}</span>
+                                    class="payment-method-span font-bold {{ $paymentDetails['classes'] }}">{{ $paymentDetails['label'] }}</span>
                             </td>
                             <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center whitespace-nowrap">
                                 {{ $order->phone_number }}
@@ -100,10 +100,10 @@
                                             <i class="{{ $order->order_status == 0 ? 'fas fa-check' : 'fas fa-times' }}"></i>
                                         </button>
                                     </form>
-                                    <a href="{{ route('orders.edit', $order) }}" class="text-blue-500 hover:text-blue-700"
+                                    <!-- <a href="{{ route('orders.edit', $order) }}" class="text-blue-500 hover:text-blue-700"
                                         title="Chỉnh sửa">
                                         <i class="fas fa-pen"></i>
-                                    </a>
+                                    </a> -->
                                     <form action="{{ route('orders.destroy', $order) }}" method="POST"
                                         class="inline delete-order-form">
                                         @csrf
