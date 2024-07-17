@@ -50,7 +50,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('orderDetails', 'shippingAddresses', 'user');
+        $order->load(['orderDetails.product', 'shippingAddresses', 'user']);
         return view('orders.show', compact('order'));
     }
 

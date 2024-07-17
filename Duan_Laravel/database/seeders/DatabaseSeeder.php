@@ -19,21 +19,21 @@ class DatabaseSeeder extends Seeder
         $faker = Faker::create();
 
         // User seeding
-        $groupRoles = ['Admin', 'Editor', 'Reviewer'];
-        for ($i = 0; $i < 60; $i++) {
-            User::create([
-                'name' => $faker->name,
-                'email' => $faker->unique()->safeEmail,
-                'password' => Hash::make('password'),
-                'remember_token' => $faker->md5,
-                'verify_email' => $faker->boolean ? $faker->md5 : null,
-                'is_active' => $faker->boolean,
-                'is_delete' => false,
-                'group_role' => $faker->randomElement($groupRoles),
-                'last_login_at' => $faker->dateTimeThisYear(),
-                'last_login_ip' => $faker->ipv4,
-            ]);
-        }
+        // $groupRoles = ['Admin', 'Editor', 'Reviewer'];
+        // for ($i = 0; $i < 60; $i++) {
+        //     User::create([
+        //         'name' => $faker->name,
+        //         'email' => $faker->unique()->safeEmail,
+        //         'password' => Hash::make('password'),
+        //         'remember_token' => $faker->md5,
+        //         'verify_email' => $faker->boolean ? $faker->md5 : null,
+        //         'is_active' => $faker->boolean,
+        //         'is_delete' => false,
+        //         'group_role' => $faker->randomElement($groupRoles),
+        //         'last_login_at' => $faker->dateTimeThisYear(),
+        //         'last_login_ip' => $faker->ipv4,
+        //     ]);
+        // }
 
         // Product seeding
         $status = ['Đang bán', 'Hết hàng', 'Ngừng bán'];
@@ -82,7 +82,7 @@ class DatabaseSeeder extends Seeder
                 'user_email' => $user->email,
                 'phone_number' => $faker->phoneNumber,
                 'order_date' => $faker->dateTimeThisYear(),
-                'order_status' => $faker->randomElement([0, 1, 3]),
+                'order_status' => $faker->randomElement([0, 1, 2]),
                 'payment_method' => $faker->randomElement([1, 2]),
                 'shipment_date' => $faker->optional()->dateTimeThisMonth(),
                 'cancel_date' => $faker->optional()->dateTimeThisMonth(),
@@ -94,7 +94,29 @@ class DatabaseSeeder extends Seeder
                 'discount_code' => $discountCode ? $discountCode->code : null,
             ]);
 
-            $shippingAddress = ShippingAddress::create([
+            // $shippingAddress = ShippingAddress::create([
+            //     'order_id' => $order->order_id,
+            //     'phone_number' => $order->phone_number,
+            //     'city' => $faker->city,
+            //     'district' => $faker->word,
+            //     'ward' => $faker->word,
+            //     'address' => $faker->address,
+            // ]);
+
+            // for ($j = 0; $j < $faker->numberBetween(1, 5); $j++) {
+            //     $product = Product::inRandomOrder()->first();
+            //     OrderDetail::create([
+            //         'order_id' => $order->order_id,
+            //         'product_id' => $product->product_id,
+            //         'shipping_address_id' => $shippingAddress->id,
+            //         'product_name' => $product->name,
+            //         'price_buy' => $product->price,
+            //         'quantity' => $faker->numberBetween(1, 5),
+            //     ]);
+            // }
+
+
+            $defaultShippingAddress = ShippingAddress::create([
                 'order_id' => $order->order_id,
                 'phone_number' => $order->phone_number,
                 'city' => $faker->city,
@@ -102,13 +124,31 @@ class DatabaseSeeder extends Seeder
                 'ward' => $faker->word,
                 'address' => $faker->address,
             ]);
-
+    
+            // Create 1 to 5 order details for each order
             for ($j = 0; $j < $faker->numberBetween(1, 5); $j++) {
                 $product = Product::inRandomOrder()->first();
+                
+                // Decide whether to use the default shipping address or create a new one
+                if ($faker->boolean(70)) { // 70% chance to use default address
+                    $shippingAddressId = $defaultShippingAddress->id;
+                } else {
+                    // Create a new shipping address for this order detail
+                    $newShippingAddress = ShippingAddress::create([
+                        'order_id' => $order->order_id,
+                        'phone_number' => $faker->phoneNumber,
+                        'city' => $faker->city,
+                        'district' => $faker->word,
+                        'ward' => $faker->word,
+                        'address' => $faker->address,
+                    ]);
+                    $shippingAddressId = $newShippingAddress->id;
+                }
+    
                 OrderDetail::create([
                     'order_id' => $order->order_id,
                     'product_id' => $product->product_id,
-                    'shipping_address_id' => $shippingAddress->id,
+                    'shipping_address_id' => $shippingAddressId,
                     'product_name' => $product->name,
                     'price_buy' => $product->price,
                     'quantity' => $faker->numberBetween(1, 5),

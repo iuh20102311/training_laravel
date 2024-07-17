@@ -85,7 +85,7 @@
                             order_status: orderStatus == 0 ? 1 : (orderStatus == 1 ? 2 : 0)
                         },
                         success: function (response) {
-                            var $row = $(`#order-row-${orderId}`);
+                            var $row = $button.closest('tr');  // Tìm hàng chứa nút được nhấn
                             var $statusSpan = $row.find('.order-status-span');
                             var $icon = $button.find('i');
 

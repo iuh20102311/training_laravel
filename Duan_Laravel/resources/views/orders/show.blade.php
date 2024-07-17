@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center">
-            {{ __('Chi tiết đơn hàng') }} #{{ $order->order_number }}
+            {{ __('Chi tiết đơn hàng') }} {{ $order->order_number }}
         </h2>
     </x-slot>
 
-    <div class="container mx-auto px-4 py-8 bg-gray-50">
+    <div class="container mx-auto mt-2 px-4 py-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="order-info-section p-6 bg-white shadow-md rounded-lg">
                 <h3 class="text-lg font-semibold mb-4 text-blue-500">Thông tin đơn hàng</h3>
@@ -46,41 +46,40 @@
             </div>
         </div>
 
-        <div class="shipping-address-section p-6 bg-white shadow-md rounded-lg mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-blue-500">Địa chỉ giao hàng</h3>
-            @foreach ($order->shippingAddresses as $address)
-                <div class="mb-4">
-                    <p class="font-semibold">{{ $address->name }}</p>
-                    <p>{{ $address->address }}</p>
-                    <p>{{ $address->ward }}, {{ $address->district }}, {{ $address->city }}</p>
-                    <p>Số điện thoại: {{ $address->phone_number }}</p>
+        <div class="product-details-section mt-6">
+            @foreach($order->orderDetails as $detail)
+                <div class="p-6 bg-white shadow-md rounded-lg mb-4">
+                    <div class="flex items-center">
+                        <img src="{{ $detail->product->image_url ?? asset('images/placeholder.jpg') }}"
+                            alt="{{ $detail->product_name }}" class="w-48 h-48 object-cover mr-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2 text-blue-500">{{ $detail->product_name }}</h4>
+                            <p class="text-gray-600">Giá: {{ number_format($detail->price_buy) }} VND</p>
+                            <p class="text-gray-600">Số lượng: {{ $detail->quantity }}</p>
+                            <p class="text-gray-600">Tổng: {{ number_format($detail->price_buy * $detail->quantity) }} VND
+                            </p>
+
+                            <div class="mt-4">
+                                <h5 class="text-md font-semibold mb-2 text-blue-500">Địa chỉ giao hàng:</h5>
+                                @php
+                                    $shippingAddress = $detail->shippingAddress; // Lấy địa chỉ giao hàng từ orderDetail
+                                @endphp
+
+                                @if ($shippingAddress)
+                                    <p>{{ $shippingAddress->name }}</p>
+                                    <p>{{ $shippingAddress->address }}</p>
+                                    <p>{{ $shippingAddress->ward }}, {{ $shippingAddress->district }},
+                                        {{ $shippingAddress->city }}
+                                    </p>
+                                    <p>Số điện thoại: {{ $shippingAddress->phone_number }}</p>
+                                @else
+                                    <p class="text-red-500">Không tìm thấy địa chỉ giao hàng</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endforeach
-        </div>
-
-        <div class="product-details-section p-6 bg-white shadow-md rounded-lg mt-6">
-            <h3 class="text-lg font-semibold mb-4 text-blue-500">Chi tiết sản phẩm</h3>
-            <table class="w-full table-auto">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="px-4 py-2 text-center text-gray-600">Sản phẩm</th>
-                        <th class="px-4 py-2 text-center text-gray-600">Giá</th>
-                        <th class="px-4 py-2 text-center text-gray-600">Số lượng</th>
-                        <th class="px-4 py-2 text-center text-gray-600">Tổng</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($order->orderDetails as $detail)
-                        <tr class="border-b">
-                            <td class="px-4 py-3 text-center">{{ $detail->product_name }}</td>
-                            <td class="px-4 py-3 text-center">{{ number_format($detail->price_buy) }} VND</td>
-                            <td class="px-4 py-3 text-center">{{ $detail->quantity }}</td>
-                            <td class="px-4 py-3 text-center">{{ number_format($detail->price_buy * $detail->quantity) }} VND
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
         </div>
 
         <div class="summary-section p-6 bg-white shadow-md rounded-lg mt-6">
@@ -89,9 +88,9 @@
         </div>
     </div>
 
-    <div class="mb-6 text-center">
+    <div class="mt-6 mb-6 text-center">
         <a href="{{ route('orders.index') }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-4 px-4 rounded">
             Quay lại danh sách đơn hàng
         </a>
     </div>
