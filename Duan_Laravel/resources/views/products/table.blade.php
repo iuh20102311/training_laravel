@@ -12,7 +12,7 @@
                     <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">Mô tả</th>
                     <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">Giá</th>
                     <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">Tình trạng</th>
-                    @if(in_array(Auth::user()->group_role, ['Admin', 'Editor']))
+                    @if(in_array(Auth::user()->group_role, ['Admin', 'Editor', 'Reviewer']))
                         <th class="bg-red-500 sticky top-0 border-b border-red-600 px-6 py-4 text-white font-bold tracking-wider text-base text-center">Thao tác</th>
                     @endif
                 </tr>
@@ -66,6 +66,15 @@
                                     <button type="button" class="text-red-500 hover:text-red-700 delete-product"
                                             data-id="{{ $product->product_id }}" data-name="{{ $product->name }}">
                                         <i class="fas fa-trash-alt px-2"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        @elseif(in_array(Auth::user()->group_role, ['Reviewer']))
+                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <button type="button" class="text-green-500 hover:text-green-700 add-to-order"
+                                            data-id="{{ $product->product_id }}" data-name="{{ $product->name }}">
+                                        <i class="fas fa-plus-circle"></i>
                                     </button>
                                 </div>
                             </td>
