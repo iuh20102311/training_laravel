@@ -7,8 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class DiscountCode extends Model
 {
     protected $fillable = [
-        'code', 'amount', 'percentage', 'valid_from', 'valid_to',
-        'usage_limit', 'used_time', 'is_active',
+        'code',
+        'amount',
+        'percentage',
+        'valid_from',
+        'valid_to',
+        'usage_limit',
+        'used_time',
+        'is_active',
     ];
 
     protected $casts = [
@@ -21,4 +27,12 @@ class DiscountCode extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function isValid()
+{
+    $currentDate = now();
+    return $this->valid_from <= $currentDate && $this->valid_to >= $currentDate && $this->used_time < $this->usage_limit;
+}
+
+
 }

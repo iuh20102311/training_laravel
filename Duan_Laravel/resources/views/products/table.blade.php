@@ -34,7 +34,7 @@
                             {{ Str::limit($product->description, 50) }}
                         </td>
                         <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                            ${{ $product->price }}
+                            {{ number_format($product->price) }} VND
                             <!-- ${{ number_format($product->price) }} -->
                         </td>
                         <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
@@ -69,15 +69,16 @@
                                     </button>
                                 </div>
                             </td>
-                        @elseif(in_array(Auth::user()->group_role, ['Reviewer']))
-                            <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
-                                <div class="flex justify-center space-x-2">
-                                    <button type="button" class="text-green-500 hover:text-green-700 add-to-order"
-                                            data-id="{{ $product->product_id }}" data-name="{{ $product->name }}">
-                                        <i class="fas fa-plus-circle"></i>
-                                    </button>
-                                </div>
-                            </td>
+                            @elseif(in_array(Auth::user()->group_role, ['Reviewer']))
+                                <td class="border-dashed border-t border-gray-200 px-6 py-4 text-center">
+                                    <form action="{{ route('orders.add') }}" method="POST" class="add-to-cart" data-url="{{ route('orders.add') }}" data-status="{{ $product->status }}">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                                        <button type="submit" class="text-green-500 hover:text-green-700">
+                                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                                        </button>
+                                    </form>
+                                </td>
                         @endif
                     </tr>
                 @endforeach
@@ -85,3 +86,51 @@
         </table>
     @endif
 </div>
+
+<script>
+    document.querySelectorAll('.add-to-cart').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const productId = this.querySelector('input[name="product_id"]').value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            const productStatus = this.getAttribute('data-status');
+
+            if (productStatus === 'Hết hàng' || productStatus === 'Ngừng bán') {
+                Swal.fire({
+                    title: 'Nhắc nhở',
+                    text: `Sản phẩm đã ${productStatus.toLowerCase()}. Không thể thêm vào giỏ hàng.`,
+                    icon: 'warning',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            fetch('/orders/add-to-cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data.message) {
+                    alert('Sản phẩm đã được thêm vào giỏ hàng');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
+            });
+        });
+    });
+</script>

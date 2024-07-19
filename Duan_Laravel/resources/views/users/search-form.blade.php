@@ -46,7 +46,7 @@
             </a>
 
             <!-- Label cho Import CSV -->
-            <div class="inline">
+            <!-- <div class="inline">
                 <label for="file-upload"
                     class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center cursor-pointer">
                     <i class="fa fa-file-import mr-2"></i> Import CSV
@@ -57,7 +57,7 @@
             <a href="{{ route('users.export') }}"
                 class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <i class="fa fa-file-export mr-2"></i> Export CSV
-            </a>
+            </a> -->
         </div>
 
         <div>

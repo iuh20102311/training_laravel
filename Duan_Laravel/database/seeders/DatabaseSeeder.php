@@ -19,21 +19,21 @@ class DatabaseSeeder extends Seeder
         $faker = Faker::create();
 
         // User seeding
-        // $groupRoles = ['Admin', 'Editor', 'Reviewer'];
-        // for ($i = 0; $i < 60; $i++) {
-        //     User::create([
-        //         'name' => $faker->name,
-        //         'email' => $faker->unique()->safeEmail,
-        //         'password' => Hash::make('password'),
-        //         'remember_token' => $faker->md5,
-        //         'verify_email' => $faker->boolean ? $faker->md5 : null,
-        //         'is_active' => $faker->boolean,
-        //         'is_delete' => false,
-        //         'group_role' => $faker->randomElement($groupRoles),
-        //         'last_login_at' => $faker->dateTimeThisYear(),
-        //         'last_login_ip' => $faker->ipv4,
-        //     ]);
-        // }
+        $groupRoles = ['Admin', 'Editor', 'Reviewer'];
+        for ($i = 0; $i < 60; $i++) {
+            User::create([
+                'name' => $faker->name,
+                'email' => $faker->unique()->safeEmail,
+                'password' => Hash::make('password'),
+                'remember_token' => $faker->md5,
+                'verify_email' => $faker->boolean ? $faker->md5 : null,
+                'is_active' => $faker->boolean,
+                'is_delete' => false,
+                'group_role' => $faker->randomElement($groupRoles),
+                'last_login_at' => $faker->dateTimeThisYear(),
+                'last_login_ip' => $faker->ipv4,
+            ]);
+        }
 
         // Product seeding
         $status = ['Đang bán', 'Hết hàng', 'Ngừng bán'];
@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
 
             Product::create([
                 'product_id' => $product_id,
-                'name' => $faker->word,
+                'name' => $faker->unique()->word,
                 'price' => $faker->randomFloat(2, 10000, 50000),
                 'description' => $faker->sentence,
                 'status' => $faker->randomElement($status),

@@ -7,23 +7,30 @@
                 <div class="flex space-x-4 mt-4">
                     @if(Auth::user()->group_role === 'Admin')
                     <a href="{{ route('users.index') }}" 
-                        class="px-4 py-2 rounded-md transition duration-300 
+                        class="px-4 py-3 rounded-md transition duration-300 
                             {{ request()->is('users*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                         Users
                     </a>
                     @endif
                     @if(in_array(Auth::user()->group_role, ['Admin', 'Editor', 'Reviewer']))
                     <a href="{{ route('products.index') }}" 
-                        class="px-4 py-2 rounded-md transition duration-300 
+                        class="px-4 py-3 rounded-md transition duration-300 
                             {{ request()->is('products*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                         Products
                     </a>
                     @endif
                     @if(in_array(Auth::user()->group_role, ['Admin']))
                     <a href="{{ route('orders.index') }}" 
-                        class="px-4 py-2 rounded-md transition duration-300 
+                        class="px-4 py-3 rounded-md transition duration-300 
                             {{ request()->is('orders*') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                         Orders
+                    </a>
+                    @endif
+                    @if(in_array(Auth::user()->group_role, ['Reviewer']))
+                    <a href="{{ route('orders.cart') }}"
+                        class="px-4 py-3 rounded-md transition duration-300 
+                            {{ request()->is('cart') || request()->is('checkout') || request()->is('place-order') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                        <i class="fa fa-shopping-cart"></i> Cart
                     </a>
                     @endif
                 </div>
