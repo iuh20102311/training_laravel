@@ -34,7 +34,7 @@ class Product extends Authenticatable
     ];
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class, 'product_id');
+        return $this->hasMany(OrderDetail::class, 'product_id', 'product_id');
     }
     public function getImageUrlAttribute()
     {

@@ -29,10 +29,11 @@ class DiscountCode extends Model
     }
 
     public function isValid()
-{
-    $currentDate = now();
-    return $this->valid_from <= $currentDate && $this->valid_to >= $currentDate && $this->used_time < $this->usage_limit;
-}
+    {
+        $currentDate = now();
+        return $this->valid_from <= $currentDate && $this->valid_to >= $currentDate && $this->used_time < $this->usage_limit;
+    }
+
 
 
 }

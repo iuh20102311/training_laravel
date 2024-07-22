@@ -6,25 +6,31 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('shipping_addresses', function (Blueprint $table) {
+        Schema::create('user_addresses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('phone_number');
             $table->string('city');
             $table->string('district');
             $table->string('ward');
             $table->string('address');
-            $table->decimal('ship_charge', 10, 2);
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
         
-            $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('shipping_addresses');
+        Schema::dropIfExists('user_addresses');
     }
 };

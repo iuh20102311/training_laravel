@@ -23,10 +23,10 @@
         </div>
     </div>
 
-    <div class="flex justify-end mt-4">
-        <!-- <a href="{{ route('orders.create') }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+    <div class="flex justify-between mt-4">
+        <a href="{{ route('orders.create') }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
             <i class="fa fa-user-plus mr-2"></i> Thêm mới
-        </a> -->
+        </a>
         <div>
             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <i class="fa fa-magnifying-glass mr-2"></i> Tìm kiếm

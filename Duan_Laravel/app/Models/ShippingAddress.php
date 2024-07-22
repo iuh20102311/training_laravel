@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ShippingAddress extends Model
 {
     protected $fillable = [
-        'order_id', 'phone_number', 'city', 'district', 'ward', 'address',
+        'order_id', 'phone_number', 'city', 'district', 'ward', 'address', 'ship_charge',
     ];
 
     public function order()
