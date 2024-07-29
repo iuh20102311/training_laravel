@@ -24,10 +24,10 @@ return new class extends Migration
             $table->decimal('sub_total', 10, 2);
             $table->decimal('total', 10, 2);
             $table->decimal('tax', 10, 2);
-            $table->decimal('ship_charge', 10, 2);
             $table->decimal('discount_amount', 10, 2)->default(0);
             $table->string('discount_code')->nullable();
             $table->timestamps();
+        
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('discount_code_id')->references('id')->on('discount_codes')->onDelete('set null');        
         });

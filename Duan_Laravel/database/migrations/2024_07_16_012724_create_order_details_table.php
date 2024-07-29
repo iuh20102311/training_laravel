@@ -11,15 +11,15 @@ return new class extends Migration {
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->string('product_id');
-            $table->unsignedBigInteger('shipping_address_id');
             $table->string('product_name');
             $table->float('price_buy');
             $table->integer('quantity');
+            $table->unsignedBigInteger('shipping_address_id');
             $table->timestamps();
-
+        
             $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
             $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
-            $table->foreign('shipping_address_id')->references('id')->on('shipping_addresses')->onDelete('cascade');
+            $table->foreign('shipping_address_id')->references('id')->on('shipping_addresses')->onDelete('restrict');
         });
     }
 

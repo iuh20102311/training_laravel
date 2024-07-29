@@ -100,10 +100,10 @@
                                             <i class="{{ $order->order_status == 0 ? 'fas fa-check' : 'fas fa-times' }}"></i>
                                         </button>
                                     </form>
-                                    <!-- <a href="{{ route('orders.edit', $order) }}" class="text-blue-500 hover:text-blue-700"
+                                    <a href="{{ route('orders.edit', $order) }}" class="text-blue-500 hover:text-blue-700"
                                         title="Chỉnh sửa">
                                         <i class="fas fa-pen"></i>
-                                    </a> -->
+                                    </a>
                                     <form action="{{ route('orders.destroy', $order) }}" method="POST"
                                         class="inline delete-order-form">
                                         @csrf
