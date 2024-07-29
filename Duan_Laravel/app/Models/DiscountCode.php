@@ -33,7 +33,4 @@ class DiscountCode extends Model
         $currentDate = now();
         return $this->valid_from <= $currentDate && $this->valid_to >= $currentDate && $this->used_time < $this->usage_limit;
     }
-
-
-
 }

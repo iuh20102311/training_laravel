@@ -38,12 +38,15 @@ Route::middleware(['auth', 'verified', 'check.user.status'])->group(function () 
         Route::post('/orders/remove-from-cart', [OrderController::class, 'removeFromCart'])->name('orders.remove');
         Route::get('/cart', [OrderController::class, 'showCart'])->name('orders.cart');
         Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('orders.checkout');
-        Route::post('/place-order', [OrderController::class, 'placeOrder'])->name('orders.place');
-        Route::get('/orders/preview', [OrderController::class, 'preview'])->name('orders.preview');
+        Route::post('/orders/place', [OrderController::class, 'placeOrder'])->name('orders.place');        
+        Route::post('/orders/preview', [OrderController::class, 'preview'])->name('orders.preview');
         Route::post('/orders/check-discount', [OrderController::class, 'checkDiscount'])->name('orders.check-discount');    
+        Route::post('/apply-discount', [OrderController::class, 'applyDiscount'])->name('orders.apply-discount');
+        Route::post('/orders/update-quantity', [OrderController::class, 'updateQuantity'])->name('orders.updateQuantity');
     });
 
     Route::resource('products', ProductController::class)->only(['index', 'show']);
+
 
     Route::get('/home', function () {
         $user = Auth::user();
