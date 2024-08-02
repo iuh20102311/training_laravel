@@ -3,15 +3,25 @@
 namespace App\Exports;
 
 use App\Models\User;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class UsersExport implements FromCollection, WithHeadings, WithMapping
+class UsersExport implements FromQuery, WithHeadings, WithMapping
 {
-    public function collection()
+
+    use Exportable;
+    protected $query;
+
+    public function __construct($query)
     {
-        return User::all();
+        $this->query = $query;
+    }
+
+    public function query()
+    {
+        return $this->query;
     }
 
     public function headings(): array

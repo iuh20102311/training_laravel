@@ -54,7 +54,7 @@
                 </label>
             </div>
 
-            <a href="{{ route('users.export') }}"
+            <a href="{{ route('users.export', request()->query()) }}"
                 class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <i class="fa fa-file-export mr-2"></i> Export CSV
             </a>
