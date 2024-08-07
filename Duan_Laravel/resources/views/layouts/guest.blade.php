@@ -12,9 +12,12 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Scripts -->
+    @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <style>
         .login-form {
@@ -77,9 +80,7 @@
             color: #dc2626;
             font-size: 0.875rem;
         }
-    </style>
 
-    <style>
         /* Add this CSS to your stylesheets */
         .popup {
             display: none;
@@ -149,6 +150,22 @@
             color: #e74c3c;
             font-size: 2em;
             margin-bottom: 10px;
+        }
+
+        .fixed {
+            position: fixed;
+            top: 1rem;
+            /* Điều chỉnh khoảng cách từ đỉnh nếu cần */
+            right: 1rem;
+            /* Điều chỉnh khoảng cách từ cạnh phải nếu cần */
+        }
+
+        @media (max-width: 1023px) {
+
+            /* Ẩn khung tổng cộng trên màn hình nhỏ */
+            .fixed {
+                display: none;
+            }
         }
     </style>
 </head>

@@ -37,12 +37,30 @@
                 },
                 success: function (response) {
                     $('#users-list').html($(response).find('#users-list').html());
+                    // Cập nhật phân trang nếu có
+                    // $('.pagination-container').html($(response).find('.pagination-container').html());
+                    // Cập nhật URL trình duyệt
+                    history.pushState(null, '', url);
                 },
                 error: function (xhr) {
                     console.error('Error:', xhr);
                 }
             });
         }
+
+        $(document).on('change', '#perPage', function () {
+            var urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('perPage', this.value);
+            var url = '{{ route('users.index') }}?' + urlParams.toString();
+            updateUserList(url);
+        });
+
+        // Xử lý phân trang Ajax
+        $(document).on('click', '.pagination a', function (e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            updateUserList(url);
+        });
 
         $('#clear-button').click(function (e) {
             e.preventDefault();
@@ -56,15 +74,7 @@
             $('#search-form input, #search-form select').val('');
             updateUserList(url);
         });
-
-        $('#perPage').change(function () {
-            urlParams.set('perPage', this.value);
-            urlParams.delete('clear');
-
-            var url = '{{ route('users.index') }}?' + urlParams.toString();
-            updateUserList(url);
-        });
-
+        
         $(document).on('click', '.delete-user', function (e) {
             e.preventDefault();
             var userId = $(this).data('id');
