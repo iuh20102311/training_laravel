@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateOrderRequest;
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Models\Order;
@@ -29,10 +30,11 @@ class OrderController extends Controller
     }
 
     
-    public function show(Order $order)
+    public function show(Order $order, )
     {
         $order = $this->orderRepository->showOrder($order);
-        return view('orders.show', compact('order'));
+        $groupedDetails = $order->orderDetails->groupBy('shipping_address_id');
+        return view('orders.show', compact('order','groupedDetails'));
     }
 
     public function destroy(Order $order)
@@ -53,7 +55,7 @@ class OrderController extends Controller
         return view('orders.create', $data); // Truyền dữ liệu từ repository vào view
     }
 
-    public function store(Request $request)
+    public function store(CreateOrderRequest $request)
     {
         $order = $this->orderRepository->storeOrder($request);
         return redirect()->route('orders.index')->with('success', trans('orders.order_created_success'));

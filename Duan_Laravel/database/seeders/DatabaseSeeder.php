@@ -20,8 +20,8 @@ class DatabaseSeeder extends Seeder
         $faker = Faker::create();
 
         // User seeding
-        $groupRoles = ['Admin', 'Editor', 'Reviewer', 'user'];
-        for ($i = 0; $i < 101; $i++) {
+        $groupRoles = ['Admin', 'Editor', 'Reviewer'];
+        for ($i = 0; $i < 50; $i++) {
             $user = User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
         $status = ['Đang bán', 'Hết hàng', 'Ngừng bán'];
         $letters = range('A', 'Z');
 
-        for ($i = 0; $i < 70; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $letterIndex = floor($i / 10);
             $letter = $letters[$letterIndex];
             $number = str_pad(($i % 10) + 1, 10, '0', STR_PAD_LEFT);
@@ -71,10 +71,17 @@ class DatabaseSeeder extends Seeder
 
         // DiscountCode seeding
         for ($i = 0; $i < 20; $i++) {
+            // Randomly choose between amount or percentage
+            $discountType = $faker->randomElement(['amount', 'percentage']);
+
+            // Set amount and percentage based on the chosen discount type
+            $amount = $discountType === 'amount' ? $faker->randomFloat(2, 10000, 50000) : null;
+            $percentage = $discountType === 'percentage' ? $faker->randomFloat(2, 10, 30) : null;
+
             DiscountCode::create([
                 'code' => $faker->unique()->word,
-                'amount' => $faker->randomFloat(2, 1000, 5000),
-                'percentage' => $faker->randomFloat(2, 5, 50),
+                'amount' => $amount,
+                'percentage' => $percentage,
                 'valid_from' => $faker->dateTimeBetween('-1 month', '+1 month'),
                 'valid_to' => $faker->dateTimeBetween('+1 month', '+2 months'),
                 'usage_limit' => $faker->numberBetween(10, 100),
@@ -87,7 +94,7 @@ class DatabaseSeeder extends Seeder
         for ($i = 0; $i < 50; $i++) {
             $discountCode = $faker->boolean ? DiscountCode::inRandomOrder()->first() : null;
             $user = User::inRandomOrder()->first();
-            
+
             $order = Order::create([
                 'discount_code_id' => $discountCode ? $discountCode->id : null,
                 'user_id' => $user->id,
@@ -110,7 +117,7 @@ class DatabaseSeeder extends Seeder
             // Create 1 to 5 order details for each order
             for ($j = 0; $j < $faker->numberBetween(1, 5); $j++) {
                 $product = Product::inRandomOrder()->first();
-                
+
                 // Create a shipping address for this order detail
                 $shippingAddress = ShippingAddress::create([
                     'order_id' => $order->order_id,
