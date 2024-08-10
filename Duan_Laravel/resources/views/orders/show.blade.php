@@ -52,40 +52,39 @@
 
 
                 <div class="product-details-section mt-6">
-                    @foreach($order->orderDetails as $detail)
-                                        <div class="p-6 bg-white shadow-md rounded-lg mb-4">
-                                            <div class="flex items-center">
-                                                <img src="{{ $detail->product->image_url ?? asset('images/placeholder.jpg') }}"
-                                                    alt="{{ $detail->product_name }}" class="w-48 h-48 object-cover mr-6">
-                                                <div>
-                                                    <h4 class="text-lg font-semibold mb-2 text-blue-500">{{ $detail->product_name }}</h4>
-                                                    <p class="text-gray-600">Giá: {{ number_format($detail->price_buy) }} VND</p>
-                                                    <p class="text-gray-600">Số lượng: {{ $detail->quantity }}</p>
-                                                    <p class="text-gray-600">Tổng:
-                                                        {{ number_format($detail->price_buy * $detail->quantity) }}
-                                                        VND
-                                                    </p>
+                    @foreach($groupedDetails as $addressId => $details)
+                        <div class="p-6 bg-white shadow-md rounded-lg mb-6">
+                            <h3 class="text-xl font-bold mb-4 text-blue-600">Địa chỉ giao hàng:</h3>
+                            @php
+                                $shippingAddress = $details->first()->shippingAddress;
+                            @endphp
+                            @if ($shippingAddress)
+                                <div class="mb-4">
+                                    <p>{{ $shippingAddress->name }}</p>
+                                    <p>{{ $shippingAddress->address }}</p>
+                                    <p>{{ $shippingAddress->ward }}, {{ $shippingAddress->district }},
+                                        {{ $shippingAddress->city }}</p>
+                                    <p>Số điện thoại: {{ $shippingAddress->phone_number }}</p>
+                                </div>
+                            @else
+                                <p class="text-red-500 mb-4">Không tìm thấy địa chỉ giao hàng</p>
+                            @endif
 
-                                                    <div class="mt-4">
-                                                        <h5 class="text-md font-semibold mb-2 text-blue-500">Địa chỉ giao hàng:</h5>
-                                                        @php
-                                                            $shippingAddress = $detail->shippingAddress; // Lấy địa chỉ giao hàng từ orderDetail
-                                                        @endphp
-
-                                                        @if ($shippingAddress)
-                                                            <p>{{ $shippingAddress->name }}</p>
-                                                            <p>{{ $shippingAddress->address }}</p>
-                                                            <p>{{ $shippingAddress->ward }}, {{ $shippingAddress->district }},
-                                                                {{ $shippingAddress->city }}
-                                                            </p>
-                                                            <p>Số điện thoại: {{ $shippingAddress->phone_number }}</p>
-                                                        @else
-                                                            <p class="text-red-500">Không tìm thấy địa chỉ giao hàng</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <h4 class="text-lg font-semibold mb-2 text-blue-500">Sản phẩm:</h4>
+                            @foreach($details as $detail)
+                                <div class="flex items-center border-t pt-4 mt-4">
+                                    <img src="{{ $detail->product->image_url ?? asset('images/placeholder.jpg') }}"
+                                        alt="{{ $detail->product_name }}" class="w-32 h-32 object-cover mr-4">
+                                    <div>
+                                        <h5 class="text-md font-semibold mb-1">{{ $detail->product_name }}</h5>
+                                        <p class="text-gray-600">Giá: {{ number_format($detail->price_buy) }} VND</p>
+                                        <p class="text-gray-600">Số lượng: {{ $detail->quantity }}</p>
+                                        <p class="text-gray-600">Tổng:
+                                            {{ number_format($detail->price_buy * $detail->quantity) }} VND</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     @endforeach
                 </div>
 

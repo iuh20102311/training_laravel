@@ -159,14 +159,6 @@
             right: 1rem;
             /* Điều chỉnh khoảng cách từ cạnh phải nếu cần */
         }
-
-        @media (max-width: 1023px) {
-
-            /* Ẩn khung tổng cộng trên màn hình nhỏ */
-            .fixed {
-                display: none;
-            }
-        }
     </style>
 </head>
 

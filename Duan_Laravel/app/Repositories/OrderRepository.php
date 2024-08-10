@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Http\Requests\CreateOrderRequest;
+
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -95,7 +97,8 @@ class OrderRepository implements OrderRepositoryInterface
                 'id' => $code->id,
                 'code' => $code->code,
                 'type' => $code->amount ? 'amount' : 'percentage',
-                'value' => $code->type == 'amount' ? $code->amount : $code->percentage
+                'amount' => $code->amount,
+                'percentage'=> $code->percentage,
             ];
         });
         return compact('users', 'products', 'discountCodes');
@@ -223,7 +226,7 @@ class OrderRepository implements OrderRepositoryInterface
     //     }
     // }
 
-    public function storeOrder(Request $request)
+    public function storeOrder(CreateOrderRequest $request)
     {
         // dd($request);
         try {
@@ -317,7 +320,19 @@ class OrderRepository implements OrderRepositoryInterface
 
             if ($request->discount_code_id) {
                 $discountCode = DiscountCode::find($request->discount_code_id);
-                $discountAmount = $discountCode->amount ?? ($subTotal * $discountCode->percentage / 100);
+                if ($discountCode) {
+                    if ($discountCode->amount) {
+                        $discountAmount = $discountCode->amount;
+                    } elseif ($discountCode->percentage) {
+                        $discountAmount = ($subTotal * $discountCode->percentage) / 100;
+                    } else {
+                        $discountAmount = 0;
+                    }
+                } else {
+                    $discountAmount = 0;
+                }
+            } else {
+                $discountAmount = 0;
             }
 
             $total = $subTotal + $tax + $totalShipping - $discountAmount;
@@ -337,7 +352,7 @@ class OrderRepository implements OrderRepositoryInterface
             DB::rollBack();
             return redirect()->back()->with('error', trans('orders.order_error') . $e->getMessage());
         }
-        
+
     }
 
 
@@ -431,7 +446,7 @@ class OrderRepository implements OrderRepositoryInterface
             ]);
 
             DB::commit();
-            return $order; // Trả về đối tượng Order đã được cập nhật
+            return $order;
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', trans('orders.order_error') . $e->getMessage());

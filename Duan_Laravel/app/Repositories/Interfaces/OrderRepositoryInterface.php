@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\Http\Requests\CreateOrderRequest;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,7 @@ interface OrderRepositoryInterface
     public function deleteOrder(Order $order);
     public function updateStatus(Request $request, Order $order);
     public function createOrder();
-    public function storeOrder(Request $request);
+    public function storeOrder(CreateOrderRequest $request);
     public function editOrder(Order $order);
     public function updateOrder(Request $request, Order $order);
     public function addToCart(Request $request);
