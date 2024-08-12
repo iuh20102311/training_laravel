@@ -324,78 +324,87 @@
             userNameInput.value = '';
             userEmailInput.value = '';
             updateAddressOptions([]);
-            disableAddressSelects(true);
             resetAddressFields();
+        }
+
+        function resetAddressFields() {
+            document.querySelectorAll('.shipping-address').forEach(addressDiv => {
+                const inputs = addressDiv.querySelectorAll('input[type="text"]');
+                inputs.forEach(input => {
+                    input.value = '';
+                    input.disabled = true;
+                });
+                const addressSelect = addressDiv.querySelector('.address-select');
+                addressSelect.value = '';
+                addressSelect.disabled = true;
+            });
         }
 
         newUserCheckbox.addEventListener('change', function () {
             const isNewUser = this.checked;
-            userSearch.value = '';
-
-            if (!isNewUser && (userNameInput.value || userEmailInput.value)) {
-                // Nếu bỏ chọn "New User" và đã nhập thông tin
-                Swal.fire({
-                    title: 'Xác nhận xóa thông tin?',
-                    text: "Bạn có chắc muốn xóa thông tin đã nhập không?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Đồng ý',
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        clearUserInfo();
-                        disableUserInputs(!isNewUser);
-                        disableAddressSelects(true);
-                        $(userSearch).prop('disabled', isNewUser).trigger('change');
-
-                        // Update Select2 after change
-                        $(userSearch).select2('destroy').select2({
-                            placeholder: 'Nhập khách hàng cần tìm',
-                            allowClear: true,
-                            data: users.map(user => ({
-                                id: user.id,
-                                text: `${user.name} (${user.email})`,
-                                user: user
-                            })),
-                            minimumInputLength: 0,
-                        });
-
-                        const addressDivs = document.querySelectorAll('.shipping-address');
-                        addressDivs.forEach(div => {
-                            const newAddressCheckbox = div.querySelector('.new-address-checkbox');
-                            newAddressCheckbox.checked = isNewUser; // Nếu isNewUser là true, tích checkbox "Địa chỉ mới"
-                            updateAddressFieldsState(div, isNewUser, isNewUser); // Cập nhật trạng thái các trường input địa chỉ
-                        });
-                    } else {
-                        this.checked = true;
-                    }
+            
+            if (isNewUser) {
+                // Xóa dữ liệu đang có
+                clearUserInfo();
+                
+                // Vô hiệu hóa select chọn người dùng
+                $(userSearch).prop('disabled', true).val(null).trigger('change');
+                
+                // Bỏ vô hiệu hóa input name và email
+                userNameInput.disabled = false;
+                userEmailInput.disabled = false;
+                userNameInput.readOnly = false;
+                userEmailInput.readOnly = false;
+                
+                // Chọn checkbox new address cho tất cả các địa chỉ
+                document.querySelectorAll('.new-address-checkbox').forEach(checkbox => {
+                    checkbox.checked = true;
+                    const addressDiv = checkbox.closest('.shipping-address');
+                    updateAddressFieldsState(addressDiv, true, true);
                 });
             } else {
-                clearUserInfo();
-                disableUserInputs(!isNewUser);
-                disableAddressSelects(true);
-                $(userSearch).prop('disabled', isNewUser).trigger('change');
-
-                // Update Select2 after change
-                $(userSearch).select2('destroy').select2({
-                    placeholder: 'Nhập khách hàng cần tìm',
-                    allowClear: true,
-                    data: users.map(user => ({
-                        id: user.id,
-                        text: `${user.name} (${user.email})`,
-                        user: user
-                    })),
-                    minimumInputLength: 0,
-                });
-
-                if (isNewUser) {
-                    const addressDivs = document.querySelectorAll('.shipping-address');
-                    addressDivs.forEach(div => {
-                        updateAddressFieldsState(div, true, true);
+                // Khi bỏ chọn New User
+                if (userNameInput.value || userEmailInput.value) {
+                    Swal.fire({
+                        title: 'Xác nhận xóa thông tin?',
+                        text: "Bạn có chắc muốn xóa thông tin đã nhập không?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Đồng ý',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            performNonNewUserActions();
+                        } else {
+                            this.checked = true;
+                        }
                     });
+                } else {
+                    performNonNewUserActions();
                 }
+            }
+
+            function performNonNewUserActions() {
+                // Xóa dữ liệu đang có
+                clearUserInfo();
+                
+                // Cho phép chọn select user
+                $(userSearch).prop('disabled', false).trigger('change');
+                
+                // Vô hiệu hóa input name và email
+                userNameInput.disabled = true;
+                userEmailInput.disabled = true;
+                userNameInput.readOnly = true;
+                userEmailInput.readOnly = true;
+                
+                // Bỏ chọn checkbox new address cho tất cả các địa chỉ
+                document.querySelectorAll('.new-address-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                    const addressDiv = checkbox.closest('.shipping-address');
+                    updateAddressFieldsState(addressDiv, false, false);
+                });
             }
         });
 
@@ -458,42 +467,42 @@
         var oldData = @json(old());
         var oldUserId = @json(old('user_id'));
         function initializeAddressFields() {
-    const selectedUserId = userIdInput.value || oldUserId;
-    const selectedUser = users.find(u => u.id == selectedUserId);
+            const selectedUserId = userIdInput.value || oldUserId;
+            const selectedUser = users.find(u => u.id == selectedUserId);
 
-    document.querySelectorAll('.shipping-address').forEach((addressDiv, index) => {
-        const addressSelect = addressDiv.querySelector('.address-select');
-        const inputs = addressDiv.querySelectorAll('input[type="text"]');
-        const newAddressCheckbox = addressDiv.querySelector('.new-address-checkbox');
+            document.querySelectorAll('.shipping-address').forEach((addressDiv, index) => {
+                const addressSelect = addressDiv.querySelector('.address-select');
+                const inputs = addressDiv.querySelectorAll('input[type="text"]');
+                const newAddressCheckbox = addressDiv.querySelector('.new-address-checkbox');
 
-        // Populate address options if a user is selected
-        if (selectedUser) {
-            updateAddressOptions(selectedUser.addresses);
-            addressSelect.disabled = false;
-        } else {
-            addressSelect.disabled = true;
-        }
+                // Populate address options if a user is selected
+                if (selectedUser) {
+                    updateAddressOptions(selectedUser.addresses);
+                    addressSelect.disabled = false;
+                } else {
+                    addressSelect.disabled = true;
+                }
 
-        // Set the selected address if it exists in old input
-        const oldAddressId = oldData && oldData.shipping_addresses && oldData.shipping_addresses[index] ? oldData.shipping_addresses[index].address_id : null;
-        if (oldAddressId) {
-            addressSelect.value = oldAddressId;
-            // Trigger change event to update input fields
-            const changeEvent = new Event('change');
-            addressSelect.dispatchEvent(changeEvent);
-        }
+                // Set the selected address if it exists in old input
+                const oldAddressId = oldData && oldData.shipping_addresses && oldData.shipping_addresses[index] ? oldData.shipping_addresses[index].address_id : null;
+                if (oldAddressId) {
+                    addressSelect.value = oldAddressId;
+                    // Trigger change event to update input fields
+                    const changeEvent = new Event('change');
+                    addressSelect.dispatchEvent(changeEvent);
+                }
 
-        if (newAddressCheckbox.checked) {
-            updateAddressFieldsState(addressDiv, true, true);
-        } else if (addressSelect.value) {
-            updateAddressFieldsState(addressDiv, true, false);
-        } else {
-            inputs.forEach(input => {
-                input.disabled = !input.value;
+                if (newAddressCheckbox.checked) {
+                    updateAddressFieldsState(addressDiv, true, true);
+                } else if (addressSelect.value) {
+                    updateAddressFieldsState(addressDiv, true, false);
+                } else {
+                    inputs.forEach(input => {
+                        input.disabled = !input.value;
+                    });
+                }
             });
         }
-    });
-}
 
         // Set initial user selection if exists
         if (oldUserId) {
