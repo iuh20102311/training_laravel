@@ -67,7 +67,7 @@ class OrderRepository implements OrderRepositoryInterface
 
         return response()->json([
             'message' => trans('orders.deleted_successfully'),
-            'order_id' => $order->id
+            'order_id' => $order->order_id
         ], 200);
     }
 
@@ -349,7 +349,7 @@ class OrderRepository implements OrderRepositoryInterface
                 'ship_charge' => $totalShipping,
             ]);
 
-            $request->flashOnly('shipping_addresses'); 
+            $request->flashOnly('shipping_addresses');
 
             DB::commit();
             return redirect()->route('orders.show', $order->order_id)->with('success', 'Đơn hàng đã được tạo thành công.');
@@ -363,202 +363,220 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function editOrder(Order $order)
     {
-        $order->load(['shippingAddresses.orderDetails.product', 'user', 'discountCode']);
-        $users = User::with('addresses')->get();
+        $order->load(['shippingAddresses.orderDetails.product', 'user.addresses', 'discountCode']);
         $products = Product::all();
-        $discountCodes = DiscountCode::where('is_active', true)->get();
-        return compact('order', 'users', 'products', 'discountCodes');
-    }
-
-    public function updateOrder(Request $request, Order $order)
-    {
-        try {
-            DB::beginTransaction();
-
-            if (count($request->products) < 1) {
-                throw new \Exception(trans('orders.must_have_at_least_one_product'));
-            }
-
-            // Cập nhật thông tin cơ bản của đơn hàng
-            $order->update([
-                'phone_number' => $request->phone_number,
-                'payment_method' => $request->payment_method,
-                'discount_code_id' => $request->discount_code_id,
-            ]);
-            // Xóa chi tiết đơn hàng cũ
-            $order->orderDetails()->delete();
-
-            $subTotal = 0;
-
-            foreach ($request->products as $key => $product) {
-                // Xử lý địa chỉ giao hàng
-                if ($request->shipping_addresses[$key]['type'] == 'existing') {
-                    $addressId = $request->shipping_addresses[$key]['address_id'];
-                    $userAddress = UserAddress::findOrFail($addressId);
-
-                    $shippingAddress = ShippingAddress::updateOrCreate(
-                        ['order_id' => $order->order_id, 'id' => $request->shipping_addresses[$key]['id'] ?? null],
-                        [
-                            'phone_number' => $userAddress->phone_number,
-                            'city' => $userAddress->city,
-                            'district' => $userAddress->district,
-                            'ward' => $userAddress->ward,
-                            'address' => $userAddress->address,
-                            'ship_charge' => $request->shipping_addresses[$key]['ship_charge'],
-                        ]
-                    );
-                } else {
-                    $shippingAddress = ShippingAddress::updateOrCreate(
-                        ['order_id' => $order->order_id, 'id' => $request->shipping_addresses[$key]['id'] ?? null],
-                        [
-                            'phone_number' => $request->shipping_addresses[$key]['phone_number'],
-                            'city' => $request->shipping_addresses[$key]['city'],
-                            'district' => $request->shipping_addresses[$key]['district'],
-                            'ward' => $request->shipping_addresses[$key]['ward'],
-                            'address' => $request->shipping_addresses[$key]['address'],
-                            'ship_charge' => $request->shipping_addresses[$key]['ship_charge'],
-                        ]
-                    );
-                }
-
-                // Tạo chi tiết đơn hàng mới
-                $orderDetail = OrderDetail::create([
-                    'order_id' => $order->order_id,
-                    'product_id' => $product['id'],
-                    'shipping_address_id' => $shippingAddress->id,
-                    'product_name' => Product::find($product['id'])->name,
-                    'price_buy' => Product::find($product['id'])->price,
-                    'quantity' => $product['quantity'],
-                ]);
-                $subTotal += $orderDetail->price_buy * $orderDetail->quantity;
-            }
-
-            // Tính thuế và tổng tiền
-            $tax = $subTotal * 0.1;
-            $discountAmount = 0;
-            if ($request->discount_code_id) {
-                $discountCode = DiscountCode::find($request->discount_code_id);
-                $discountAmount = $discountCode->amount ?? ($subTotal * $discountCode->percentage / 100);
-            }
-
-            $total = $subTotal + $tax - $discountAmount;
-
-            // Cập nhật đơn hàng
-            $order->update([
-                'sub_total' => $subTotal,
-                'total' => $total,
-                'tax' => $tax,
-                'discount_amount' => $discountAmount,
-            ]);
-
-            DB::commit();
-            return $order;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', trans('orders.order_error') . $e->getMessage());
-        }
+        $discountCodes = DiscountCode::where('is_active', true)->get()->filter(function ($code) {
+            return $code->isValid();
+        })->map(function ($code) {
+            return [
+                'id' => $code->id,
+                'code' => $code->code,
+                'type' => $code->amount ? 'amount' : 'percentage',
+                'amount' => $code->amount,
+                'percentage' => $code->percentage,
+            ];
+        });
+        return compact('order', 'products', 'discountCodes');
     }
 
     // public function updateOrder(Request $request, Order $order)
     // {
-    //     DB::beginTransaction();
     //     try {
+    //         DB::beginTransaction();
+
+    //         if (count($request->products) < 1) {
+    //             throw new \Exception(trans('orders.must_have_at_least_one_product'));
+    //         }
+
     //         // Cập nhật thông tin cơ bản của đơn hàng
     //         $order->update([
-    //             'user_id' => $request->user_id,
-    //             'user_name' => $request->user_name,
-    //             'user_email' => $request->user_email,
+    //             'phone_number' => $request->phone_number,
     //             'payment_method' => $request->payment_method,
-    //             'phone_number' => $request->shipping_addresses[0]['phone_number'] ?? '',
+    //             'discount_code_id' => $request->discount_code_id,
     //         ]);
-
-    //         // Xử lý mã giảm giá
-    //         $discountAmount = 0;
-    //         if ($request->filled('discount_code_id')) {
-    //             $discountCode = DiscountCode::findOrFail($request->discount_code_id);
-    //             if (!$discountCode->isValid()) {
-    //                 return back()->withErrors(['discount_code' => trans('orders.discount_error')])->withInput();
-    //             }
-    //             $order->discount_code_id = $discountCode->id;
-    //             $discountAmount = $discountCode->amount ?? ($order->sub_total * $discountCode->percentage / 100);
-    //         } else {
-    //             $order->discount_code_id = null;
-    //         }
+    //         // Xóa chi tiết đơn hàng cũ
+    //         $order->orderDetails()->delete();
 
     //         $subTotal = 0;
-    //         $totalShipping = 0;
 
-    //         // Xử lý địa chỉ giao hàng và sản phẩm
-    //         foreach ($request->shipping_addresses as $index => $addressData) {
-    //             $shippingAddress = $order->shippingAddresses()->updateOrCreate(
-    //                 ['id' => $addressData['id'] ?? null],
-    //                 [
-    //                     'phone_number' => $addressData['phone_number'],
-    //                     'city' => $addressData['city'],
-    //                     'district' => $addressData['district'],
-    //                     'ward' => $addressData['ward'],
-    //                     'address' => $addressData['address'],
-    //                     'ship_charge' => $addressData['ship_charge'],
-    //                 ]
-    //             );
+    //         foreach ($request->products as $key => $product) {
+    //             // Xử lý địa chỉ giao hàng
+    //             if ($request->shipping_addresses[$key]['type'] == 'existing') {
+    //                 $addressId = $request->shipping_addresses[$key]['address_id'];
+    //                 $userAddress = UserAddress::findOrFail($addressId);
 
-    //             $totalShipping += $addressData['ship_charge'];
-
-    //             // Xử lý sản phẩm trong đơn hàng
-    //             if (isset($addressData['products'])) {
-    //                 foreach ($addressData['products'] as $productId => $productData) {
-    //                     $product = Product::findOrFail($productId);
-    //                     $orderDetail = OrderDetail::updateOrCreate(
-    //                         [
-    //                             'order_id' => $order->id,
-    //                             'product_id' => $productId,
-    //                             'shipping_address_id' => $shippingAddress->id,
-    //                         ],
-    //                         [
-    //                             'product_name' => $product->name,
-    //                             'price_buy' => $product->price,
-    //                             'quantity' => $productData['quantity'],
-    //                         ]
-    //                     );
-
-    //                     $subTotal += $orderDetail->price_buy * $orderDetail->quantity;
-    //                 }
+    //                 $shippingAddress = ShippingAddress::updateOrCreate(
+    //                     ['order_id' => $order->order_id, 'id' => $request->shipping_addresses[$key]['id'] ?? null],
+    //                     [
+    //                         'phone_number' => $userAddress->phone_number,
+    //                         'city' => $userAddress->city,
+    //                         'district' => $userAddress->district,
+    //                         'ward' => $userAddress->ward,
+    //                         'address' => $userAddress->address,
+    //                         'ship_charge' => $request->shipping_addresses[$key]['ship_charge'],
+    //                     ]
+    //                 );
+    //             } else {
+    //                 $shippingAddress = ShippingAddress::updateOrCreate(
+    //                     ['order_id' => $order->order_id, 'id' => $request->shipping_addresses[$key]['id'] ?? null],
+    //                     [
+    //                         'phone_number' => $request->shipping_addresses[$key]['phone_number'],
+    //                         'city' => $request->shipping_addresses[$key]['city'],
+    //                         'district' => $request->shipping_addresses[$key]['district'],
+    //                         'ward' => $request->shipping_addresses[$key]['ward'],
+    //                         'address' => $request->shipping_addresses[$key]['address'],
+    //                         'ship_charge' => $request->shipping_addresses[$key]['ship_charge'],
+    //                     ]
+    //                 );
     //             }
 
-    //             // Xóa các sản phẩm không còn trong đơn hàng
-    //             $existingProductIds = array_keys($addressData['products'] ?? []);
-    //             OrderDetail::where('order_id', $order->id)
-    //                 ->where('shipping_address_id', $shippingAddress->id)
-    //                 ->whereNotIn('product_id', $existingProductIds)
-    //                 ->delete();
+    //             // Tạo chi tiết đơn hàng mới
+    //             $orderDetail = OrderDetail::create([
+    //                 'order_id' => $order->order_id,
+    //                 'product_id' => $product['id'],
+    //                 'shipping_address_id' => $shippingAddress->id,
+    //                 'product_name' => Product::find($product['id'])->name,
+    //                 'price_buy' => Product::find($product['id'])->price,
+    //                 'quantity' => $product['quantity'],
+    //             ]);
+    //             $subTotal += $orderDetail->price_buy * $orderDetail->quantity;
     //         }
 
-    //         // Xóa các địa chỉ giao hàng không còn trong đơn hàng
-    //         $existingAddressIds = array_column($request->shipping_addresses, 'id');
-    //         $order->shippingAddresses()
-    //             ->whereNotIn('id', $existingAddressIds)
-    //             ->delete();
-
     //         // Tính thuế và tổng tiền
-    //         $tax = $subTotal * 0.1; // Giả sử thuế 10%
-    //         $total = $subTotal + $tax + $totalShipping - $discountAmount;
+    //         $tax = $subTotal * 0.1;
+    //         $discountAmount = 0;
+    //         if ($request->discount_code_id) {
+    //             $discountCode = DiscountCode::find($request->discount_code_id);
+    //             $discountAmount = $discountCode->amount ?? ($subTotal * $discountCode->percentage / 100);
+    //         }
 
-    //         // Cập nhật tổng tiền đơn hàng
+    //         $total = $subTotal + $tax - $discountAmount;
+
+    //         // Cập nhật đơn hàng
     //         $order->update([
     //             'sub_total' => $subTotal,
     //             'total' => $total,
     //             'tax' => $tax,
     //             'discount_amount' => $discountAmount,
-    //             'ship_charge' => $totalShipping,
     //         ]);
 
     //         DB::commit();
     //         return $order;
     //     } catch (\Exception $e) {
     //         DB::rollBack();
-    //         return back()->withErrors(['error' => 'Có lỗi xảy ra khi cập nhật đơn hàng: ' . $e->getMessage()])->withInput();
+    //         return redirect()->back()->with('error', trans('orders.order_error') . $e->getMessage());
     //     }
     // }
+
+    public function updateOrder(Request $request, Order $order)
+    {
+        DB::beginTransaction();
+        // try {
+            // Update basic order information
+            $order->update([
+                'user_id' => $request->user_id,
+                'payment_method' => $request->payment_method,
+
+            ]);
+
+            // Handle discount code
+            $discountAmount = 0;
+            if ($request->filled('discount_code_id')) {
+                $discountCode = DiscountCode::findOrFail($request->discount_code_id);
+                $order->discount_code_id = $discountCode->id;
+                $discountAmount = $discountCode->type === 'percentage'
+                    ? ($order->sub_total * $discountCode->percentage / 100)
+                    : $discountCode->amount;
+            } else {
+                $order->discount_code_id = null;
+            }
+
+            $subTotal = 0;
+            $totalShipping = 0;
+
+            // Process shipping addresses and products
+            foreach ($request->shipping_addresses as $addressData) {
+                $shippingAddress = $order->shippingAddresses()->updateOrCreate(
+                    ['id' => $addressData['id'] ?? null],
+                    [
+                        'phone_number' => $addressData['phone_number'],
+                        'city' => $addressData['city'],
+                        'district' => $addressData['district'],
+                        'ward' => $addressData['ward'],
+                        'address' => $addressData['address'],
+                        'ship_charge' => $addressData['ship_charge'],
+                    ]
+                );
+
+                $totalShipping += $addressData['ship_charge'];
+
+                // Process products associated with the address
+                if (isset($addressData['products'])) {
+                    foreach ($addressData['products'] as $productData) {
+                        $product = Product::findOrFail($productData['product_id']);
+                        $orderDetail = OrderDetail::updateOrCreate(
+                            [
+                                'order_id' => $order->order_id,
+                                'product_id' => $productData['product_id'],
+                                'shipping_address_id' => $shippingAddress->id,
+                            ],
+                            [
+                                'product_name' => $product->name,
+                                'price_buy' => $product->price,
+                                'quantity' => $productData['quantity'],
+                            ]
+                        );
+
+                        $subTotal += $orderDetail->price_buy * $orderDetail->quantity;
+                    }
+                }
+
+                // Remove products not in the current request
+                $existingProductIds = array_column($addressData['products'] ?? [], 'product_id');
+                OrderDetail::where('order_id', $order->order_id)
+                    ->where('shipping_address_id', $shippingAddress->id)
+                    ->whereNotIn('product_id', $existingProductIds)
+                    ->delete();
+            }
+
+            // Remove shipping addresses not in the current request
+            $existingAddressIds = array_column($request->shipping_addresses, 'id');
+
+            // Find shipping addresses that need to be deleted
+            $addressesToDelete = $order->shippingAddresses()
+                ->whereNotIn('id', $existingAddressIds)
+                ->get();
+
+            foreach ($addressesToDelete as $address) {
+                // Delete associated order details first
+                $order->orderDetails()
+                    ->where('shipping_address_id', $address->id)
+                    ->delete();
+
+                // Then delete the shipping address
+                $address->delete();
+            }
+
+            // Calculate tax and total
+            $tax = $subTotal * 0.1; // Assume 10% tax
+            $total = $subTotal + $tax + $totalShipping - $discountAmount;
+
+            // Update order totals
+            $order->update([
+                'sub_total' => $subTotal,
+                'total' => $total,
+                'tax' => $tax,
+                'discount_amount' => $discountAmount,
+                'ship_charge' => $totalShipping,
+            ]);
+
+            DB::commit();
+            return $order;    
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return back()->withErrors(['error' => 'Có lỗi xảy ra khi cập nhật đơn hàng: ' . $e->getMessage()])->withInput();
+        // }
+    }
 
     public function addToCart(Request $request)
     {

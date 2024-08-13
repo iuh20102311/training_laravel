@@ -18,7 +18,7 @@
                                 </label>
                                 <input
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('name') border-red-500 @enderror"
-                                    id="product-name" name="name" type="text" placeholder="Nhập tên sản phẩm">
+                                    id="product-name" name="name" value="{{ old('name') }}" type="text" placeholder="Nhập tên sản phẩm">
                                 @error('name')
                                     <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
@@ -30,7 +30,7 @@
                                 </label>
                                 <input
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('price') border-red-500 @enderror"
-                                    id="price" name="price" type="number" placeholder="Nhập giá bán" min="0" step="any">
+                                    id="price" name="price" type="number" placeholder="Nhập giá bán" min="0" step="any" value="{{ old('price') }}">
                                 @error('price')
                                     <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
@@ -44,9 +44,9 @@
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('status') border-red-500 @enderror"
                                     id="status" name="status">
                                     <option value="">Chọn trạng thái</option>
-                                    <option value="Đang bán">Đang bán</option>
-                                    <option value="Ngừng bán">Ngừng bán</option>
-                                    <option value="Hết hàng">Hết hàng</option>
+                                    <option value="Đang bán" {{ old('payment_method') == 'Đang bán' ? 'selected' : '' }}>Đang bán</option>
+                                    <option value="Ngừng bán" {{ old('payment_method') == 'Ngừng bán' ? 'selected' : '' }}>Ngừng bán</option>
+                                    <option value="Hết hàng" {{ old('payment_method') == 'Hết hàng' ? 'selected' : '' }}>Hết hàng</option>
                                 </select>
                                 @error('status')
                                     <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
@@ -59,7 +59,7 @@
                                 <textarea
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('description') border-red-500 @enderror"
                                     id="description" name="description" rows="4"
-                                    placeholder="Mô tả sản phẩm"></textarea>
+                                    placeholder="Mô tả sản phẩm">{{ old('description') }}</textarea>
                                 @error('description')
                                     <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
                                 @enderror
