@@ -153,18 +153,15 @@
                                 <div class="mb-4 mt-4">
                                     <label class="block text-sm font-bold text-gray-700">Danh sách sản phẩm</label>
                                     <div class="flex items-center">
-                                        <select id="product_select_0"
-                                            class="product-select mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <select id="product_select_0" class="product-select mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                             <option value="">Chọn sản phẩm</option>
                                             @foreach($products as $product)
-                                                <option value="{{ $product->product_id }}" data-name="{{ $product->name }}"
-                                                    data-price="{{ $product->price }}" data-image="{{ $product->image }}">
+                                                <option value="{{ $product->product_id }}" data-name="{{ $product->name }}" data-price="{{ $product->price }}" data-image="{{ $product->image }}">
                                                     {{ $product->name }} ({{ number_format($product->price) }} VND)
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <button type="button"
-                                            class="add-product ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                        <button type="button" class="add-product ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                                             Thêm
                                         </button>
                                     </div>
@@ -655,6 +652,25 @@
             }
         });
 
+        $(document).ready(function() {
+            $('.product-select').select2({
+                placeholder: 'Chọn sản phẩm',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Khi thêm sản phẩm mới, cần khởi tạo lại Select2
+            $(document).on('click', '.add-product', function() {
+                let index = $(this).closest('.shipping-address').data('index');
+                addProduct(index);
+                $(`#product_select_${index}`).select2({
+                    placeholder: 'Chọn sản phẩm',
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+        });
+
         function addProduct(index) {
             const productSelect = document.getElementById(`product_select_${index}`);
             const productList = document.getElementById(`product_list_${index}`);
@@ -684,7 +700,9 @@
                     image: selectedOption.dataset.image
 
                 };
-
+                
+                $(`#product_select_${index}`).val(null).trigger('change');
+                
                 // Check if the product already exists in the table
                 const existingRow = productList.querySelector(`tr[data-product-id="${product.id}"]`);
 
