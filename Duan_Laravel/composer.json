@@ -59,7 +59,10 @@
         "lint": [
             "./vendor/bin/phpcs --report=full",
             "./vendor/bin/phpmd app text ./phpmd.xml"
-        ]
+        ],
+        "fix": [
+        "./vendor/bin/phpcbf"
+    ]
     },
     "extra": {
         "laravel": {

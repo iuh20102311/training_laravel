@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateOrderRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Models\Order;
-
+use App\Http\Requests\OrderRequest;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -29,12 +31,12 @@ class OrderController extends Controller
         return view('orders.index', compact('orders'));
     }
 
-    
-    public function show(Order $order, )
+
+    public function show(Order $order,)
     {
         $order = $this->orderRepository->showOrder($order);
         $groupedDetails = $order->orderDetails->groupBy('shipping_address_id');
-        return view('orders.show', compact('order','groupedDetails'));
+        return view('orders.show', compact('order', 'groupedDetails'));
     }
 
     public function destroy(Order $order)
@@ -46,7 +48,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $response = $this->orderRepository->updateStatus($request, $order);
-        return $response; 
+        return $response;
     }
 
     public function create()
@@ -57,14 +59,15 @@ class OrderController extends Controller
 
     public function store(CreateOrderRequest $request)
     {
-        $order = $this->orderRepository->storeOrder($request);
+        $validatedData = $request->validated();
+        $order = $this->orderRepository->storeOrder($validatedData);
         return redirect()->route('orders.index')->with('success', trans('orders.order_created_success'));
     }
 
     public function edit(Order $order)
     {
         $data = $this->orderRepository->editOrder($order);
-        return view('orders.edit', $data); 
+        return view('orders.edit', $data);
     }
 
     public function update(Request $request, Order $order)
@@ -72,6 +75,7 @@ class OrderController extends Controller
         $order = $this->orderRepository->updateOrder($request, $order);
         return redirect()->route('orders.index')->with('success', trans('orders.order_updated_success'));
     }
+
 
     public function addToCart(Request $request)
     {
@@ -82,7 +86,7 @@ class OrderController extends Controller
     public function removeFromCart(Request $request)
     {
         $response = $this->orderRepository->removeFromCart($request);
-        return response()->json($response); 
+        return response()->json($response);
     }
 
 
@@ -95,7 +99,7 @@ class OrderController extends Controller
     public function updateQuantity(Request $request)
     {
         $response = $this->orderRepository->updateQuantity($request);
-        return response()->json($response); 
+        return response()->json($response);
     }
 
 

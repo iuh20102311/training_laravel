@@ -58,8 +58,7 @@ class ProductController extends Controller
     {
         $this->productRepository->deleteProduct($product);
 
-        if (request()->ajax()) 
-        {
+        if (request()->ajax()) {
             $filters = [
                 'name' => request('name'),
                 'status' => request('status'),
@@ -77,5 +76,4 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', trans('products.product_deleted_success'));
     }
-
 }

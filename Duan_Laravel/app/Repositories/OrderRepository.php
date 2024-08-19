@@ -14,10 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Http\Requests\CreateOrderRequest;
-use Illuminate\Support\MessageBag;
-
-
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -228,30 +224,29 @@ class OrderRepository implements OrderRepositoryInterface
     //     }
     // }
 
-    public function storeOrder(CreateOrderRequest $request)
+    public function storeOrder(array $validatedData)
     {
-        // dd($request);
         try {
             DB::beginTransaction();
 
             // Xử lý người dùng
-            if ($request->user_id === null) {
+            if (empty($validatedData['user_id'])) {
                 $user = User::create([
-                    'name' => $request->user_name,
-                    'email' => $request->user_email,
+                    'name' => $validatedData['user_name'],
+                    'email' => $validatedData['user_email'],
                     'password' => Hash::make('password'),
                 ]);
             } else {
-                $user = User::findOrFail($request->user_id);
+                $user = User::findOrFail($validatedData['user_id']);
             }
 
             // Xử lý mã giảm giá
             $discountCode = null;
             $discountAmount = 0;
-            if ($request->filled('discount_code_id')) {
-                $discountCode = DiscountCode::findOrFail($request->discount_code_id);
+            if (!empty($validatedData['discount_code_id'])) {
+                $discountCode = DiscountCode::findOrFail($validatedData['discount_code_id']);
                 if (!$discountCode->isValid()) {
-                    return back()->withErrors(['discount_code' => trans('orders.discount_error')])->withInput();
+                    throw new \Exception(trans('orders.discount_error'));
                 }
             }
 
@@ -263,8 +258,8 @@ class OrderRepository implements OrderRepositoryInterface
                 'user_email' => $user->email,
                 'order_date' => now(),
                 'order_status' => 0, // Đang xử lý
-                'payment_method' => $request->payment_method,
-                'phone_number' => $request->shipping_addresses[0]['phone_number'] ?? '',
+                'payment_method' => $validatedData['payment_method'],
+                'phone_number' => $validatedData['shipping_addresses'][0]['phone_number'] ?? '',
                 'sub_total' => 0,
                 'total' => 0,
                 'tax' => 0,
@@ -275,7 +270,7 @@ class OrderRepository implements OrderRepositoryInterface
             $totalShipping = 0;
 
             // Xử lý từng địa chỉ giao hàng
-            foreach ($request->shipping_addresses as $addressData) {
+            foreach ($validatedData['shipping_addresses'] as $addressData) {
                 // Xử lý địa chỉ giao hàng
                 $shippingAddress = ShippingAddress::create([
                     'order_id' => $order->order_id,
@@ -290,7 +285,7 @@ class OrderRepository implements OrderRepositoryInterface
                 $totalShipping += $addressData['ship_charge'];
 
                 // Thêm địa chỉ mới vào bảng user_address nếu là user mới
-                if ($request->new_user_checkbox) {
+                if (!empty($validatedData['new_user_checkbox'])) {
                     UserAddress::create([
                         'user_id' => $user->id,
                         'phone_number' => $addressData['phone_number'],
@@ -321,21 +316,15 @@ class OrderRepository implements OrderRepositoryInterface
             $tax = $subTotal * 0.1; // Giả sử thuế 10%
             $discountAmount = 0;
 
-            if ($request->discount_code_id) {
-                $discountCode = DiscountCode::find($request->discount_code_id);
+            if (!empty($validatedData['discount_code_id'])) {
+                $discountCode = DiscountCode::find($validatedData['discount_code_id']);
                 if ($discountCode) {
                     if ($discountCode->amount) {
                         $discountAmount = $discountCode->amount;
                     } elseif ($discountCode->percentage) {
                         $discountAmount = ($subTotal * $discountCode->percentage) / 100;
-                    } else {
-                        $discountAmount = 0;
                     }
-                } else {
-                    $discountAmount = 0;
                 }
-            } else {
-                $discountAmount = 0;
             }
 
             $total = $subTotal + $tax + $totalShipping - $discountAmount;
@@ -349,15 +338,12 @@ class OrderRepository implements OrderRepositoryInterface
                 'ship_charge' => $totalShipping,
             ]);
 
-            $request->flashOnly('shipping_addresses');
-
             DB::commit();
-            return redirect()->route('orders.show', $order->order_id)->with('success', 'Đơn hàng đã được tạo thành công.');
+            return $order;
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', trans('orders.order_error') . $e->getMessage());
+            throw $e;
         }
-
     }
 
 
@@ -471,7 +457,7 @@ class OrderRepository implements OrderRepositoryInterface
     public function updateOrder(Request $request, Order $order)
     {
         DB::beginTransaction();
-        // try {
+        try {
             // Update basic order information
             $order->update([
                 'user_id' => $request->user_id,
@@ -571,11 +557,11 @@ class OrderRepository implements OrderRepositoryInterface
             ]);
 
             DB::commit();
-            return $order;    
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return back()->withErrors(['error' => 'Có lỗi xảy ra khi cập nhật đơn hàng: ' . $e->getMessage()])->withInput();
-        // }
+            return $order;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Có lỗi xảy ra khi cập nhật đơn hàng: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function addToCart(Request $request)
