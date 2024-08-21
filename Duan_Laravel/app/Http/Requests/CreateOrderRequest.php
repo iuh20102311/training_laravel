@@ -17,7 +17,7 @@ class CreateOrderRequest extends FormRequest
         return [
             'user_id' => 'nullable|exists:users,id',
             'user_name' => 'required_if:user_id,null|string|max:255',
-            'user_email' => 'required_if:user_id,null|email|max:255',
+            'user_email' => 'required_if:user_id,null|email|max:255|unique:users,email',
             'payment_method' => 'required|in:1,2', // Assuming 1 is COD and 2 is PayPal
             'discount_code_id' => 'nullable|exists:discount_codes,id',
             'new_user_checkbox' => 'sometimes|boolean',
@@ -41,6 +41,7 @@ class CreateOrderRequest extends FormRequest
         return [
             'user_name.required_if' => 'Tên người dùng là bắt buộc.',
             'user_email.required_if' => 'Email người dùng là bắt buộc.',
+            'user_email.unique' => 'Email người dùng này đã tồn tại.',
             'shipping_addresses.required' => 'Cần ít nhất một địa chỉ giao hàng.',
             'shipping_addresses.*.products.required' => 'Mỗi địa chỉ giao hàng cần ít nhất một sản phẩm.',
             'shipping_addresses.*.products.*.quantity.min' => 'Số lượng sản phẩm phải lớn hơn 0.',

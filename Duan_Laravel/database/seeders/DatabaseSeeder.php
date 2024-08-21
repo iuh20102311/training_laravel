@@ -19,6 +19,69 @@ class DatabaseSeeder extends Seeder
     {
         $faker = Faker::create();
 
+        // Create specific users with predefined roles
+        $specificUsers = [
+            [
+                'name' => 'Nguyen Vu',
+                'email' => 'nguyenvu@user.gmail.com',
+                'password' => Hash::make('12345678'),
+                'group_role' => 'Reviewer'
+            ],
+            [
+                'name' => 'Nguyen Vu Admin',
+                'email' => 'nguyenvu@admin.gmail.com',
+                'password' => Hash::make('12345678'),
+                'group_role' => 'Admin'
+            ]
+        ];
+
+        foreach ($specificUsers as $userData) {
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                [
+                    'name' => $userData['name'],
+                    'password' => $userData['password'],
+                    'group_role' => $userData['group_role'],
+                    'remember_token' => $faker->md5,
+                    'verify_email' => $faker->boolean ? $faker->md5 : null,
+                    'is_active' => $faker->boolean,
+                    'is_delete' => false,
+                    'last_login_at' => $faker->dateTimeThisYear(),
+                    'last_login_ip' => $faker->ipv4,
+                ]
+            );
+        }
+
+        // User seeding
+        $groupRoles = ['Admin', 'Editor', 'Reviewer'];
+        for ($i = 0; $i < 50; $i++) {
+            $user = User::create([
+                'name' => $faker->name,
+                'email' => $faker->unique()->safeEmail,
+                'password' => Hash::make('password'),
+                'remember_token' => $faker->md5,
+                'verify_email' => $faker->boolean ? $faker->md5 : null,
+                'is_active' => $faker->boolean,
+                'is_delete' => false,
+                'group_role' => $faker->randomElement($groupRoles),
+                'last_login_at' => $faker->dateTimeThisYear(),
+                'last_login_ip' => $faker->ipv4,
+            ]);
+
+            // Create 1-3 addresses for each user
+            for ($j = 0; $j < $faker->numberBetween(1, 3); $j++) {
+                UserAddress::create([
+                    'user_id' => $user->id,
+                    'phone_number' => $faker->phoneNumber,
+                    'city' => $faker->city,
+                    'district' => $faker->word,
+                    'ward' => $faker->word,
+                    'address' => $faker->address,
+                    'is_default' => $j == 0, // First address is default
+                ]);
+            }
+        }
+
         // User seeding
         $groupRoles = ['Admin', 'Editor', 'Reviewer'];
         for ($i = 0; $i < 50; $i++) {

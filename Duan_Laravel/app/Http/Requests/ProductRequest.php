@@ -26,7 +26,7 @@ class ProductRequest extends FormRequest
             'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/|min:0|max:1000000',
             'description' => 'required',
             'status' => 'required|in:Đang bán,Ngừng bán,Hết hàng',
-            'image' =>  'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=1024'        
+            'image' =>  'nullable|image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=1024'
         ];
     }
 

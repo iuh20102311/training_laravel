@@ -158,6 +158,23 @@ return [
     |
     */
 
+    // 'providers' => ServiceProvider::defaultProviders()->merge([
+    //     /*
+    //      * Package Service Providers...
+    //      */
+
+    //     /*
+    //      * Application Service Providers...
+    //      */
+    //     App\Providers\AppServiceProvider::class,
+    //     App\Providers\AuthServiceProvider::class,
+    //     // App\Providers\BroadcastServiceProvider::class,
+    //     App\Providers\EventServiceProvider::class,
+    //     App\Providers\RouteServiceProvider::class,
+    //     App\Providers\TelescopeServiceProvider::class,
+    //     Maatwebsite\Excel\ExcelServiceProvider::class,
+    // ])->toArray(),
+
     'providers' => ServiceProvider::defaultProviders()->merge([
         /*
          * Package Service Providers...
@@ -173,7 +190,11 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\TelescopeServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-    ])->toArray(),
+
+        // Chỉ thêm CollisionServiceProvider khi ở môi trường local
+    ])
+    ->toArray(),
+
 
     /*
     |--------------------------------------------------------------------------

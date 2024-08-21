@@ -13,7 +13,7 @@ interface OrderRepositoryInterface
     public function deleteOrder(Order $order);
     public function updateStatus(Request $request, Order $order);
     public function createOrder();
-    public function storeOrder(CreateOrderRequest $request);
+    public function storeOrder(array $validatedData);
     public function editOrder(Order $order);
     public function updateOrder(Request $request, Order $order);
     public function addToCart(Request $request);

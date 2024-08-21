@@ -7,7 +7,7 @@ class StoreProductRequest extends ProductRequest
     public function rules()
     {
         $rules = parent::rules();
-        $rules['name'] = 'required|string|min:5'; 
+        $rules['name'] = 'required|string|min:5';
         
         return $rules;
     }

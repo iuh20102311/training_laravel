@@ -5,6 +5,37 @@
         </h2>
     </x-slot>
 
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đã xảy ra lỗi!',
+                    text: 'Vui lòng tải lại file để xem lỗi',
+                    @if(session('error_file'))
+                    html: `Đã có lỗi xảy ra khi import. Bạn có thể tải lại file để Import lại cho đúng! <br><br> <a href="{{ Storage::url(session('error_file')) }}" 
+                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center" download><i class="fas fa-download mr-1"></i> Tải file lỗi</a>`,
+                    @else
+                    text: '{{ session('error') }}',
+                    @endif
+                });
+            });
+        </script>
+    @endif
+
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: '{{ session('success') }}'
+                });
+            });
+        </script>
+    @endif
+
+
     <div class="py-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -74,7 +105,7 @@
             $('#search-form input, #search-form select').val('');
             updateUserList(url);
         });
-        
+
         $(document).on('click', '.delete-user', function (e) {
             e.preventDefault();
             var userId = $(this).data('id');

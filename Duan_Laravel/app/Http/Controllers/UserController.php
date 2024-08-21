@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use App\Imports\UsersImport;
 use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Lang;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Collection;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 
 class UserController extends Controller
@@ -35,7 +37,7 @@ class UserController extends Controller
         return view('users.index', compact('users', 'filters'));
     }
 
-    
+
     public function create()
     {
         return view('users.create');
@@ -101,13 +103,71 @@ class UserController extends Controller
         return response()->json(['message' => $message, 'is_active' => $user->is_active], 200);
     }
 
+    // public function import(Request $request)
+    // {
+    //     $request->validate([
+    //         'file' => 'required|mimes:csv,txt',
+    //     ]);
+
+    //     Excel::import(new UsersImport, $request->file('file'));
+
+    //     return back()->with('success', trans('users.import_csv'));
+    // }
+
     public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|mimes:csv,txt',
         ]);
 
-        Excel::import(new UsersImport, $request->file('file'));
+        $import = new UsersImport();
+        Excel::import($import, $request->file('file'));
+
+        if (count($import->errors) > 0) {
+            $export = new class ($import->errors) implements FromCollection, WithHeadings {
+                protected $errors;
+
+                public function __construct($errors)
+                {
+                    $this->errors = $errors;
+                }
+
+                public function collection()
+                {
+                    return collect($this->errors)->map(function ($error) {
+                        $row = $error['row'];
+                        $errorMessages = [];
+                        foreach ($error['errors'] as $field => $messages) {
+                            $errorMessages[] = "Dòng {$error['row_number']}, {$field}: " . implode(', ', $messages);
+                        }
+                        $row['errors'] = implode("\n", $errorMessages);
+
+                        $row['is_active'] = $row['is_active'] === 0 ? '0' : $row['is_active'];
+                        $row['is_delete'] = $row['is_delete'] === 0 ? '0' : $row['is_delete'];
+                        
+                        return $row;
+                    });
+                }
+
+                public function headings(): array
+                {
+                    return array_merge(array_keys($this->errors[0]['row']), ['errors']);
+                }
+            };
+
+            $exportFileName = 'error_report_' . time() . '.csv';
+            Excel::store($export, $exportFileName, 'public');
+
+            $errorMessage = "Có lỗi trong quá trình import. Chi tiết:\n";
+            foreach ($import->errors as $error) {
+                foreach ($error['errors'] as $field => $messages) {
+                    $errorMessage .= "Dòng {$error['row_number']}, {$field}: " . implode(', ', $messages) . "\n";
+                }
+            }
+
+            return back()->with('error', $errorMessage)
+                ->with('error_file', $exportFileName);
+        }
 
         return back()->with('success', trans('users.import_csv'));
     }

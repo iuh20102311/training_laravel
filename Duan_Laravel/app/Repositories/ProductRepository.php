@@ -42,7 +42,6 @@ class ProductRepository implements ProductRepositoryInterface
             'filters' => $filters,
             'products' => $query->orderByDesc('created_at')->paginate($perPage)->appends($filters)
         ];
-
     }
 
     public function createProduct(array $data): Product

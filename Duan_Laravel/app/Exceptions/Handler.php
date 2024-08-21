@@ -20,9 +20,9 @@ class Handler extends ExceptionHandler
     ];
 
     public function register()
-{
-    $this->renderable(function (ValidationException $e, $request) {
-        return back()->withErrors($e->errors())->withInput();
-    });
-}
+    {
+        $this->renderable(function (ValidationException $e, $request) {
+            return back()->withErrors($e->errors())->withInput();
+        });
+    }
 }

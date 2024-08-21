@@ -24,14 +24,18 @@
             <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus
                 autocomplete="username" placeholder="Email" />
         </div>
-        <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        @error('email')
+            <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
+        @enderror
 
         <div class="input-group">
             <i class="fas fa-lock"></i>
             <x-text-input id="password" type="password" name="password" required autocomplete="current-password"
                 placeholder="Mật khẩu" />
         </div>
-        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        @error('password')
+            <p class="text-red-500 text-xs italic mt-1" style="color:red">{{ $message }}</p>
+        @enderror
 
         <div class="remember-me">
             <label for="remember_me" class="inline-flex items-center">
@@ -79,5 +83,3 @@
         });
     </script>
 </x-guest-layout>
-
-
