@@ -32,11 +32,12 @@ class OrderController extends Controller
     }
 
 
-    public function show(Order $order,)
+    public function show(Order $order, )
     {
         $order = $this->orderRepository->showOrder($order);
         $groupedDetails = $order->orderDetails->groupBy('shipping_address_id');
-        return view('orders.show', compact('order', 'groupedDetails'));
+        $totalShipCharge = $order->shippingAddresses->sum('ship_charge');
+        return view('orders.show', compact('order', 'groupedDetails', 'totalShipCharge'));
     }
 
     public function destroy(Order $order)
@@ -109,6 +110,12 @@ class OrderController extends Controller
         return view('orders.checkout', $data);
     }
 
+    public function preview(Request $request)
+    {
+        $data = $this->orderRepository->preview($request);
+        return view('orders.preview', $data);
+    }
+
     public function placeOrder(Request $request)
     {
         return $this->orderRepository->placeOrder($request);
@@ -118,12 +125,5 @@ class OrderController extends Controller
     {
         $response = $this->orderRepository->checkDiscount($request);
         return response()->json($response);
-    }
-
-
-    public function preview(Request $request)
-    {
-        $sessionData = $this->orderRepository->preview($request);
-        return view('orders.preview', $sessionData);
     }
 }

@@ -13,7 +13,7 @@ class StoreUserRequest extends UserRequest
 
         return $rules;
     }
-
+ 
     public function messages()
     {
         $messages = parent::messages();

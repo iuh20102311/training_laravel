@@ -12,6 +12,17 @@
                 <div class="p-8">
                     <form method="POST" action="{{ route('orders.preview') }}">
                         @csrf
+                        @if ($errors->any())
+                            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                                role="alert">
+                                <strong class="font-bold">Có lỗi xảy ra!</strong>
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <!-- Cột bên trái -->
                             <div class="md:col-span-2 space-y-8">
@@ -39,8 +50,7 @@
                                     <h3 class="py-6 text-xl text-center font-semibold text-blue-700">Chi tiết đơn hàng
                                     </h3>
                                     @foreach($cart as $productId => $item)
-                                        <div
-                                            class="product-item bg-white p-6 rounded-lg shadow-lg mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border border-gray-200">
+                                        <div class="product-item bg-white p-6 rounded-lg shadow-lg mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border border-gray-200">
                                             <div class="flex items-center mb-4 sm:mb-0">
                                                 <img src="{{ asset('storage/' . $item['image']) }}"
                                                     alt="{{ $item['name'] }}"
@@ -53,7 +63,7 @@
                                                     <p class="text-gray-600 text-sm">Số lượng: {{ $item['quantity'] }}</p>
                                                     <p id="ship_charge_{{ $productId }}"
                                                         class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md ship-charge"
-                                                        data-index="{{ $loop->index }}">Phí vận chuyển: 
+                                                        data-index="{{ $loop->index }}">Phí vận chuyển:
                                                         {{ number_format($item['ship_charge']) }} VND
                                                     </p>
                                                     <input type="hidden"
@@ -181,6 +191,25 @@
 
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.shipping-address-type').forEach(function (element) {
+            element.addEventListener('change', function () {
+                var selectedType = this.value;
+                var productItem = this.closest('.product-item');
+                var newAddressFields = productItem.querySelector('.new-address');
+                var existingAddressFields = productItem.querySelector('.existing-address');
+
+                if (selectedType === 'new') {
+                    newAddressFields.style.display = 'block';
+                    existingAddressFields.style.display = 'none';
+                } else {
+                    newAddressFields.style.display = 'none';
+                    existingAddressFields.style.display = 'block';
+                }
+            });
+        });
+    });
+
     $(document).ready(function () {
         $('#applyDiscountBtn').click(function () {
             var discountCode = $('#discount_code').val();
@@ -257,26 +286,6 @@
             let total = subTotal + tax + totalShipping - discountAmount;
             $('#total').text(numberFormat(Math.round(total)) + ' VND');
             $('#total_amount').val(Math.round(total));
-        }
-
-        updateTotal();
-
-        $('.shipping-address-type').change(function () {
-            const productItem = $(this).closest('.product-item');
-            const existingAddress = productItem.find('.existing-address');
-            const newAddress = productItem.find('.new-address');
-
-            if ($(this).val() === 'existing') {
-                existingAddress.show();
-                newAddress.hide();
-                existingAddress.find('select, input').prop('required', true);
-                newAddress.find('input').prop('required', false);
-            } else {
-                existingAddress.hide();
-                newAddress.show();
-                existingAddress.find('select, input').prop('required', false);
-                newAddress.find('input').prop('required', true);
-            }
-        });
+        } updateTotal();
     });
 </script>

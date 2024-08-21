@@ -730,7 +730,7 @@
                         <td class="px-6 py-4 text-center whitespace-nowrap">
                             <div class="flex items-center justify-center">
                                 <button type="button" class="decrement-quantity px-3 py-1 bg-gray-300 rounded-l">-</button>
-                                <input type="number" name="shipping_addresses[${index}][products][${product.id}][quantity]" value="1" min="1" max="20" class="quantity-input mt-1 w-20 shadow-sm border rounded-md text-center" readonly>
+                                <input type="number" name="shipping_addresses[${index}][products][${product.id}][quantity]" value="1" min="1" max="20" class="quantity-input border border-gray-300 px-2 py-1 rounded-none text-center w-12 mx-2" readonly> 
                                 <button type="button" class="increment-quantity px-3 py-1 bg-gray-300 rounded-r">+</button>
                                 <input type="hidden" name="shipping_addresses[${index}][products][${product.id}][product_id]" value="${product.id}">
                             </div>

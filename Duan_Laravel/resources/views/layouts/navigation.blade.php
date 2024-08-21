@@ -29,7 +29,7 @@
                     @if(in_array(Auth::user()->group_role, ['Reviewer']))
                     <a href="{{ route('orders.cart') }}"
                         class="px-4 py-3 rounded-md transition duration-300 
-                            {{ request()->is('cart') || request()->is('checkout') || request()->is('place-order') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                            {{ request()->is('cart') || request()->is('checkout') || request()->routeIs('orders.preview') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                         <i class="fa fa-shopping-cart"></i> Cart
                     </a>
                     @endif

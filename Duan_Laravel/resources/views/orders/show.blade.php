@@ -89,8 +89,11 @@
                 </div>
 
                 <div class="summary-section p-6 bg-white shadow-md rounded-lg mt-6">
-                    <h3 class="text-lg font-semibold mb-4 text-blue-500">Tổng kết</h3>
-                    <span class="font-bold text-lg text-red-600">{{ number_format($order->total) }} VND</span>
+                    <p class="flex justify-between"><span>Tạm tính:</span> <span id="tax">{{ number_format($order->sub_total) }} VND</span></p>
+                    <p class="flex justify-between"><span>Thuế (10%):</span> <span id="tax">{{ number_format($order->tax) }} VND</span></p>
+                    <p class="flex justify-between"><span>Phí vận chuyển:</span> <span id="total_shipping">{{ number_format($totalShipCharge) }} VND</span></p>
+                    <p id="discount_row" class="flex justify-between"><span>Giảm giá:</span> <span id="discount">{{ number_format($order->discount_amount) }} VND</span></p>
+                    <p class="flex justify-between"><span class="text-lg font-semibold mb-4 text-blue-500">Tổng kết</span><span class="font-bold text-lg text-red-600">{{ number_format($order->total) }} VND</span></p>   
                 </div>
 
 

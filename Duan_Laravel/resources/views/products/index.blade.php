@@ -57,6 +57,17 @@
 
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Đặt hàng thành công!',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'OK'
+            });
+        @endif
+    });
+    
     $(document).ready(function () {
         var urlParams = new URLSearchParams(window.location.search);
         var clear = false;
